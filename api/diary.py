@@ -1,11 +1,13 @@
 import os
 import json
 import requests
+from dotenv import load_dotenv
 from http.server import BaseHTTPRequestHandler
 
 
 CODYSSEY_API_URL = "https://copa.codyssey.kr/v1/chat/completions"
 
+load_dotenv()
 
 class handler(BaseHTTPRequestHandler):
 
