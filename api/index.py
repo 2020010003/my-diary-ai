@@ -35,10 +35,19 @@ class handler(BaseHTTPRequestHandler):
         self.wfile.write(response)
 
     def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'API is running!')
+        if self.path == '/' or self.path == '/index.html':
+        # index.html 파일 읽어서 반환
+            with open('index.html', 'r', encoding='utf-8') as f:
+                content = f.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(content.encode('utf-8'))
+        else:
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'API is running!')
 
     def do_POST(self):
 
