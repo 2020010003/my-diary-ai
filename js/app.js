@@ -1,11 +1,11 @@
-/*
-    오늘의 편지
+﻿/*
+    ?ㅻ뒛???몄?
     Frontend JavaScript
 */
 
 
 // ========================================
-// 페이지 요소 가져오기
+// ?섏씠吏 ?붿냼 媛?몄삤湲?
 // ========================================
 
 const pages = document.querySelectorAll(".page");
@@ -14,7 +14,7 @@ const navigationLinks = document.querySelectorAll("[data-page]");
 
 
 // ========================================
-// 일기 작성 관련 요소
+// ?쇨린 ?묒꽦 愿???붿냼
 // ========================================
 
 const diaryInput = document.getElementById("diary");
@@ -33,7 +33,7 @@ const errorMessage =
 
 
 // ========================================
-// AI 답장 관련 요소
+// AI ?듭옣 愿???붿냼
 // ========================================
 
 const aiResponse =
@@ -41,12 +41,12 @@ const aiResponse =
 
 
 // ========================================
-// 페이지 이동 함수
+// ?섏씠吏 ?대룞 ?⑥닔
 // ========================================
 
 function showPage(pageName) {
 
-    // 모든 페이지 숨기기
+    // 紐⑤뱺 ?섏씠吏 ?④린湲?
     pages.forEach((page) => {
 
         page.classList.remove("active");
@@ -54,12 +54,12 @@ function showPage(pageName) {
     });
 
 
-    // 선택한 페이지 찾기
+    // ?좏깮???섏씠吏 李얘린
     const targetPage =
         document.getElementById(pageName);
 
 
-    // 페이지가 존재하면 보여주기
+    // ?섏씠吏媛 議댁옱?섎㈃ 蹂댁뿬二쇨린
     if (targetPage) {
 
         targetPage.classList.add("active");
@@ -67,7 +67,7 @@ function showPage(pageName) {
     }
 
 
-    // 페이지 위쪽으로 이동
+    // ?섏씠吏 ?꾩そ?쇰줈 ?대룞
     window.scrollTo({
         top: 0,
         behavior: "smooth"
@@ -77,7 +77,7 @@ function showPage(pageName) {
 
 
 // ========================================
-// 페이지 이동
+// ?섏씠吏 ?대룞
 // ========================================
 
 function navigate(pageName) {
@@ -105,7 +105,7 @@ function navigate(pageName) {
 
 
 // ========================================
-// 메뉴 버튼 클릭
+// 硫붾돱 踰꾪듉 ?대┃
 // ========================================
 
 navigationLinks.forEach((link) => {
@@ -127,7 +127,7 @@ navigationLinks.forEach((link) => {
 
 
 // ========================================
-// 주소의 #home, #write 등을 감지
+// 二쇱냼??#home, #write ?깆쓣 媛먯?
 // ========================================
 
 window.addEventListener(
@@ -148,7 +148,7 @@ window.addEventListener(
 
 
 // ========================================
-// 처음 웹사이트를 열었을 때
+// 泥섏쓬 ?뱀궗?댄듃瑜??댁뿀????
 // ========================================
 
 const initialPage =
@@ -162,7 +162,7 @@ showPage(initialPage);
 
 
 // ========================================
-// 일기 글자 수 표시
+// ?쇨린 湲?????쒖떆
 // ========================================
 
 diaryInput.addEventListener(
@@ -181,7 +181,7 @@ diaryInput.addEventListener(
 
 
 // ========================================
-// 오류 메시지 보여주기
+// ?ㅻ쪟 硫붿떆吏 蹂댁뿬二쇨린
 // ========================================
 
 function showError(message) {
@@ -198,7 +198,7 @@ function showError(message) {
 
 
 // ========================================
-// 오류 메시지 숨기기
+// ?ㅻ쪟 硫붿떆吏 ?④린湲?
 // ========================================
 
 function hideError() {
@@ -214,20 +214,20 @@ function hideError() {
 
 
 // ========================================
-// AI 요청 중 화면
+// AI ?붿껌 以??붾㈃
 // ========================================
 
 function setLoading(isLoading) {
 
 
-    // AI 요청 중
+    // AI ?붿껌 以?
     if (isLoading) {
 
         sendButton.disabled = true;
 
 
         buttonText.textContent =
-            "AI가 답장을 쓰고 있어요";
+            "AI媛 ?듭옣???곌퀬 ?덉뼱??;
 
 
         loadingSpinner.classList.remove(
@@ -237,14 +237,14 @@ function setLoading(isLoading) {
 
     }
 
-    // AI 요청 끝
+    // AI ?붿껌 ??
     else {
 
         sendButton.disabled = false;
 
 
         buttonText.textContent =
-            "AI에게 답장 받기";
+            "AI?먭쾶 ?듭옣 諛쏄린";
 
 
         loadingSpinner.classList.add(
@@ -257,13 +257,13 @@ function setLoading(isLoading) {
 
 
 // ========================================
-// Python API에 일기 보내기
+// Python API???쇨린 蹂대궡湲?
 // ========================================
 
 async function requestAiLetter(diary) {
 
 
-    // 30초 타임아웃 설정
+    // 30珥???꾩븘???ㅼ젙
     const controller =
         new AbortController();
 
@@ -279,10 +279,10 @@ async function requestAiLetter(diary) {
     try {
 
 
-        // Python API 호출
+        // Python API ?몄텧
         const response =
             await fetch(
-                "/api/diary",
+                "/api",
                 {
 
                     method: "POST",
@@ -303,7 +303,7 @@ async function requestAiLetter(diary) {
             );
 
 
-        // 서버 응답을 JSON으로 변환
+        // ?쒕쾭 ?묐떟??JSON?쇰줈 蹂??
         let data = {};
 
 
@@ -317,34 +317,34 @@ async function requestAiLetter(diary) {
         catch {
 
             throw new Error(
-                "서버에서 올바른 응답을 받지 못했습니다."
+                "?쒕쾭?먯꽌 ?щ컮瑜??묐떟??諛쏆? 紐삵뻽?듬땲??"
             );
 
         }
 
 
-        // 서버에서 오류가 발생한 경우
+        // ?쒕쾭?먯꽌 ?ㅻ쪟媛 諛쒖깮??寃쎌슦
         if (!response.ok) {
 
             throw new Error(
                 data.error ||
-                "AI 서버에서 오류가 발생했습니다."
+                "AI ?쒕쾭?먯꽌 ?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎."
             );
 
         }
 
 
-        // AI 답장이 없는 경우
+        // AI ?듭옣???녿뒗 寃쎌슦
         if (!data.reply) {
 
             throw new Error(
-                "AI 답장을 받지 못했습니다."
+                "AI ?듭옣??諛쏆? 紐삵뻽?듬땲??"
             );
 
         }
 
 
-        // AI 답장 반환
+        // AI ?듭옣 諛섑솚
         return data.reply;
 
 
@@ -353,20 +353,20 @@ async function requestAiLetter(diary) {
     catch (error) {
 
 
-        // 30초 타임아웃
+        // 30珥???꾩븘??
         if (
             error.name ===
             "AbortError"
         ) {
 
             throw new Error(
-                "AI의 답장이 늦어지고 있습니다. 잠시 후 다시 시도해주세요."
+                "AI???듭옣????뼱吏怨??덉뒿?덈떎. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂."
             );
 
         }
 
 
-        // 다른 오류
+        // ?ㅻⅨ ?ㅻ쪟
         throw error;
 
     }
@@ -381,7 +381,7 @@ async function requestAiLetter(diary) {
 
 
 // ========================================
-// "AI에게 답장 받기" 버튼
+// "AI?먭쾶 ?듭옣 諛쏄린" 踰꾪듉
 // ========================================
 
 sendButton.addEventListener(
@@ -389,23 +389,23 @@ sendButton.addEventListener(
     async () => {
 
 
-        // 기존 오류 제거
+        // 湲곗〈 ?ㅻ쪟 ?쒓굅
         hideError();
 
 
-        // 일기 내용 가져오기
+        // ?쇨린 ?댁슜 媛?몄삤湲?
         const diary =
             diaryInput.value.trim();
 
 
         // ====================================
-        // 빈 입력 검사
+        // 鍮??낅젰 寃??
         // ====================================
 
         if (!diary) {
 
             showError(
-                "오늘의 이야기를 한 줄이라도 작성해주세요."
+                "?ㅻ뒛???댁빞湲곕? ??以꾩씠?쇰룄 ?묒꽦?댁＜?몄슂."
             );
 
 
@@ -418,13 +418,13 @@ sendButton.addEventListener(
 
 
         // ====================================
-        // 너무 짧은 입력 검사
+        // ?덈Т 吏㏃? ?낅젰 寃??
         // ====================================
 
         if (diary.length < 5) {
 
             showError(
-                "조금만 더 자세하게 이야기를 적어주세요."
+                "議곌툑留????먯꽭?섍쾶 ?댁빞湲곕? ?곸뼱二쇱꽭??"
             );
 
 
@@ -437,7 +437,7 @@ sendButton.addEventListener(
 
 
         // ====================================
-        // 로딩 시작
+        // 濡쒕뵫 ?쒖옉
         // ====================================
 
         setLoading(true);
@@ -446,19 +446,19 @@ sendButton.addEventListener(
         try {
 
 
-            // Python API에 일기 전송
+            // Python API???쇨린 ?꾩넚
             const reply =
                 await requestAiLetter(
                     diary
                 );
 
 
-            // AI 답장 화면에 표시
+            // AI ?듭옣 ?붾㈃???쒖떆
             aiResponse.textContent =
                 reply;
 
 
-            // 편지 페이지로 이동
+            // ?몄? ?섏씠吏濡??대룞
             navigate("letter");
 
 
@@ -468,21 +468,21 @@ sendButton.addEventListener(
 
 
             console.error(
-                "AI 요청 오류:",
+                "AI ?붿껌 ?ㅻ쪟:",
                 error
             );
 
 
             showError(
                 error.message ||
-                "AI 답장을 가져오는 중 문제가 발생했습니다."
+                "AI ?듭옣??媛?몄삤??以?臾몄젣媛 諛쒖깮?덉뒿?덈떎."
             );
 
         }
 
         finally {
 
-            // 로딩 종료
+            // 濡쒕뵫 醫낅즺
             setLoading(false);
 
         }
@@ -492,7 +492,7 @@ sendButton.addEventListener(
 
 
 // ========================================
-// Ctrl + Enter로 AI 요청
+// Ctrl + Enter濡?AI ?붿껌
 // ========================================
 
 diaryInput.addEventListener(
