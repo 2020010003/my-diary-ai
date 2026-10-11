@@ -34,6 +34,11 @@ class handler(BaseHTTPRequestHandler):
 
         self.wfile.write(response)
 
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'API is running!')
 
     def do_POST(self):
 
