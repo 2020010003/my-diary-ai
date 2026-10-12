@@ -8,7 +8,41 @@
     const loadingSpinner = document.getElementById("loadingSpinner");
     const resultSection = document.getElementById("resultSection");
     const replyOutput = document.getElementById("replyOutput");
-    const errorMessage = document.getElementById("errorMessage");
+     const pageButtons = document.querySelectorAll("[data-page]");
+
+    function showPage(pageId) {
+        const targetPage = document.getElementById(pageId);
+
+        if (!targetPage) {
+            console.warn("해당 페이지를 찾을 수 없습니다:", pageId);
+            return;
+        }
+
+        pages.forEach(function (page) {
+            page.classList.remove("active");
+        });
+
+        targetPage.classList.add("active");
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+    pageButtons.forEach(function (button) {
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const pageId = button.dataset.page;
+            showPage(pageId);
+        });
+    });
+
+    // 처음 로드했을 때 active 페이지가 없으면 첫 번째 page를 보여줌
+    if (!document.querySelector(".page.active") && pages.length > 0) {
+        pages[0].classList.add("active");
+    }
 
     const API_URL = "/api";
 
