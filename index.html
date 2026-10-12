@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>�삤�뒛�쓽 �렪吏�</title>
-
+    <title>오늘의 편지</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
-    <!-- �긽�떒 硫붾돱 -->
+    <!-- 상단 헤더 -->
     <header class="site-header">
         <div class="header-inner">
 
             <a href="#home" class="logo" data-page="home">
-                �삤�뒛�쓽 �렪吏�
+                오늘의 편지
             </a>
 
             <nav class="nav">
-                <a href="#home" data-page="home">�솃</a>
-                <a href="#write" data-page="write">�씪湲� �벐湲�</a>
-                <a href="#about" data-page="about">�꽌鍮꾩뒪 �냼媛�</a>
+                <a href="#home" data-page="home">홈</a>
+                <a href="#write" data-page="write">일기 쓰기</a>
+                <a href="#about" data-page="about">서비스 소개</a>
             </nav>
 
         </div>
@@ -31,9 +29,7 @@
 
     <main>
 
-        <!-- =========================
-             �솃
-        ========================== -->
+        <!-- 홈 섹션 -->
         <section id="home" class="page active">
 
             <div class="hero">
@@ -45,26 +41,25 @@
                     </p>
 
                     <h1>
-                        �삤�뒛 �븯猷�,<br>
-                        留덉쓬�쓣 �렪吏�濡� 諛쏆븘蹂댁꽭�슂.
+                        오늘의 하루,<br>
+                        편지처럼 따뜻하게 기록해보세요.
                     </h1>
 
                     <p class="hero-description">
-                        �삤�뒛 �엳�뿀�뜕 �씪�쓣 �옄�쑀濡�寃� �쟻�뼱二쇱꽭�슂.
-                        <br>
-                        AI媛� �떦�떊�쓽 �씠�빞湲곕�� �씫怨� �뵲�쑜�븳 �떟�옣�쓣 蹂대궡�뱶由쎈땲�떎.
+                        오늘 있었던 일들을 일기로 남겨보세요.<br>
+                        AI가 따뜻한 답장을 보내 당신의 하루를 더 특별하게 만들어드려요.
                     </p>
 
                     <button
                         class="primary-button"
                         data-page="write">
-                        �삤�뒛�쓽 �씪湲� �벐湲�
+                        오늘의 일기 쓰러 가기
                     </button>
 
                 </div>
 
 
-                <!-- �렪吏� �씠誘몄�� �쁺�뿭 -->
+                <!-- 편지 봉투 일러스트 -->
                 <div class="hero-letter">
 
                     <div class="letter-envelope">
@@ -74,15 +69,15 @@
                         <div class="letter-paper">
 
                             <span class="letter-small">
-                                Dear. �삤�뒛�쓽 �굹�뿉寃�
+                                Dear. 오늘의 나에게
                             </span>
 
                             <span class="letter-heart">
-                                �솪
+                                ♥
                             </span>
 
                             <span class="letter-small">
-                                �삤�뒛�룄 �젙留� �닔怨좏뻽�뼱�슂.
+                                오늘도 수고했어요.
                             </span>
 
                         </div>
@@ -96,9 +91,7 @@
         </section>
 
 
-        <!-- =========================
-             �씪湲� �옉�꽦
-        ========================== -->
+        <!-- 일기 작성 섹션 -->
         <section id="write" class="page">
 
             <div class="section-container">
@@ -110,12 +103,12 @@
                     </p>
 
                     <h2>
-                        �삤�뒛 �븯猷⑤뒗 �뼱�븷�굹�슂?
+                        오늘 하루는 어떠셨나요?
                     </h2>
 
                     <p>
-                        �옒�븳 �씪�룄, �옒�뱾�뿀�뜕 �씪�룄,
-                        �븘臾� �쓽誘� �뾾�뒗 �씠�빞湲곕씪�룄 愿쒖갖�븘�슂.
+                        기쁜 일, 힘들었던 일,
+                        그냥 있었던 일도 편하게 적어보세요.
                     </p>
 
                 </div>
@@ -124,37 +117,25 @@
                 <div class="diary-card">
 
                     <label for="diary">
-                        �삤�뒛�쓽 �씠�빞湲�
+                        오늘의 일기
                     </label>
-
 
                     <textarea
                         id="diary"
                         maxlength="3000"
-                        placeholder="�삤�뒛 �엳�뿀�뜕 �씪�쓣 �렪�븯寃� �쟻�뼱二쇱꽭�슂.
-
-�삁瑜� �뱾硫�,
-�삤�뒛��� �븰援먯뿉�꽌 諛쒗몴瑜� �뻽�떎.
-留롮씠 湲댁옣�뻽吏�留� �깮媛곷낫�떎 �옒 �걹�굹�꽌 �떎�뻾�씠�뿀�떎.
-洹몃윴�뜲 移쒓뎄��� 議곌툑 �떎�닾�뼱�꽌 留덉쓬�씠 醫뗭�� �븡�븯�떎.">
+                        placeholder="오늘 있었던 일들을 자유롭게 적어보세요...">
                     </textarea>
 
-
                     <div class="input-info">
-
-                        <span id="char-count">
-                            0 / 3000
-                        </span>
-
+                        <span id="char-count">0 / 3000</span>
                     </div>
-
 
                     <button
                         id="send-button"
                         class="primary-button full-button">
 
                         <span id="button-text">
-                            AI�뿉寃� �떟�옣 諛쏄린
+                            AI에게 답장 받기
                         </span>
 
                         <span
@@ -164,8 +145,6 @@
 
                     </button>
 
-
-                    <!-- �삤瑜� 硫붿떆吏� -->
                     <div
                         id="error-message"
                         class="message error hidden">
@@ -178,71 +157,38 @@
         </section>
 
 
-        <!-- =========================
-             AI �떟�옣
-        ========================== -->
+        <!-- AI 답장 섹션 -->
         <section id="letter" class="page">
 
             <div class="section-container letter-container">
 
                 <div class="section-title">
-
-                    <p class="eyebrow">
-                        YOUR LETTER
-                    </p>
-
-                    <h2>
-                        �떦�떊�뿉寃� �룄李⑺븳 �렪吏�
-                    </h2>
-
-                    <p>
-                        �삤�뒛�쓽 �씠�빞湲곕�� �씫��� AI媛�
-                        �떟�옣�쓣 蹂대궡�솕�뼱�슂.
-                    </p>
-
+                    <p class="eyebrow">TODAY'S REPLY</p>
+                    <h2>AI가 보낸 답장이 도착했어요 💌</h2>
                 </div>
 
+                <div class="letter-card">
 
-                <div
-                    id="letter-card"
-                    class="ai-letter-card">
-
-                    <div class="letter-decoration">
-                        �솪
+                    <div class="letter-header">
+                        <span>Dear. 소중한 당신에게</span>
                     </div>
 
-
-                    <p class="letter-greeting">
-                        Dear. �삤�뒛�쓽 �떦�떊�뿉寃�
-                    </p>
-
-
-                    <!-- AI �떟�옣�씠 �뿬湲곗뿉 �몴�떆�맗�땲�떎 -->
-                    <div
-                        id="ai-response"
-                        class="ai-response">
+                    <div class="letter-body">
+                        <p id="ai-reply">
+                            답장을 불러오는 중이에요...
+                        </p>
                     </div>
 
-
-                    <p class="letter-ending">
-                        �삤�뒛�룄 �떦�떊�쓽 �븯猷⑤�� �쓳�썝�븷寃뚯슂.
-                    </p>
-
-
-                    <div class="letter-signature">
-                        From.<br>
-                        �삤�뒛�쓽 �렪吏�
+                    <div class="letter-footer">
+                        <span>오늘의 편지 AI 드림 ✉️</span>
                     </div>
 
                 </div>
-
 
                 <button
                     class="secondary-button"
                     data-page="write">
-
-                    �떎�떆 �씪湲� �벐湲�
-
+                    다시 일기 쓰기
                 </button>
 
             </div>
@@ -250,164 +196,38 @@
         </section>
 
 
-        <!-- =========================
-             �꽌鍮꾩뒪 �냼媛�
-        ========================== -->
+        <!-- 서비스 소개 섹션 -->
         <section id="about" class="page">
 
             <div class="section-container">
 
                 <div class="section-title">
-
-                    <p class="eyebrow">
-                        ABOUT THE SERVICE
+                    <p class="eyebrow">ABOUT</p>
+                    <h2>오늘의 편지란?</h2>
+                    <p>
+                        매일 일기를 쓰고 AI에게 따뜻한 답장을 받아보세요.<br>
+                        당신의 하루를 더 소중하게 기억할 수 있어요.
                     </p>
-
-                    <h2>
-                        �삤�뒛�쓽 �렪吏��뒗 �뼱�뼡 �꽌鍮꾩뒪�씤媛��슂?
-                    </h2>
-
                 </div>
-
 
                 <div class="about-grid">
 
-
                     <div class="about-card">
-
-                        <div class="about-number">
-                            01
-                        </div>
-
-                        <h3>
-                            �씪湲곕�� �옉�꽦�빐�슂
-                        </h3>
-
-                        <p>
-                            �삤�뒛 �엳�뿀�뜕 �씪�씠�굹 吏�湲� �뒓�겮怨� �엳�뒗
-                            媛먯젙�쓣 �옄�쑀濡�寃� �옉�꽦�빀�땲�떎.
-                        </p>
-
+                        <div class="about-icon">✏️</div>
+                        <h3>일기 쓰기</h3>
+                        <p>오늘 하루 있었던 일을 자유롭게 적어보세요.</p>
                     </div>
 
-
                     <div class="about-card">
-
-                        <div class="about-number">
-                            02
-                        </div>
-
-                        <h3>
-                            AI媛� �씠�빞湲곕�� �씫�뼱�슂
-                        </h3>
-
-                        <p>
-                            �옉�꽦�븳 �씠�빞湲곕뒗 �꽌踰꾨�� �넻�빐
-                            Codyssey AI�뿉寃� �쟾�떖�맗�땲�떎.
-                        </p>
-
+                        <div class="about-icon">🤖</div>
+                        <h3>AI 답장</h3>
+                        <p>AI가 당신의 일기를 읽고 따뜻한 편지를 보내드려요.</p>
                     </div>
 
-
                     <div class="about-card">
-
-                        <div class="about-number">
-                            03
-                        </div>
-
-                        <h3>
-                            �뵲�쑜�븳 �떟�옣�쓣 諛쏆븘�슂
-                        </h3>
-
-                        <p>
-                            AI媛� �씪湲곗쓽 �궡�슜�쓣 諛뷀깢�쑝濡�
-                            怨듦컧怨� �쓳�썝�쓽 硫붿떆吏�瑜� �옉�꽦�빀�땲�떎.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <!-- 湲곗닠 援ъ“ -->
-
-                <div class="tech-section">
-
-                    <h3>
-                        �꽌鍮꾩뒪 湲곗닠 援ъ“
-                    </h3>
-
-
-                    <div class="flow">
-
-
-                        <div class="flow-item">
-
-                            <strong>
-                                �궗�슜�옄
-                            </strong>
-
-                            <span>
-                                �씪湲� �옉�꽦
-                            </span>
-
-                        </div>
-
-
-                        <div class="flow-arrow">
-                            �넂
-                        </div>
-
-
-                        <div class="flow-item">
-
-                            <strong>
-                                JavaScript
-                            </strong>
-
-                            <span>
-                                fetch()
-                            </span>
-
-                        </div>
-
-
-                        <div class="flow-arrow">
-                            �넂
-                        </div>
-
-
-                        <div class="flow-item">
-
-                            <strong>
-                                Python API
-                            </strong>
-
-                            <span>
-                                Vercel
-                            </span>
-
-                        </div>
-
-
-                        <div class="flow-arrow">
-                            �넂
-                        </div>
-
-
-                        <div class="flow-item">
-
-                            <strong>
-                                Codyssey AI
-                            </strong>
-
-                            <span>
-                                �떟�옣 �깮�꽦
-                            </span>
-
-                        </div>
-
-
+                        <div class="about-icon">💌</div>
+                        <h3>나만의 기록</h3>
+                        <p>소중한 하루를 편지처럼 기록해보세요.</p>
                     </div>
 
                 </div>
@@ -419,18 +239,11 @@
     </main>
 
 
-    <!-- �븯�떒 -->
     <footer class="site-footer">
-
-        <p>
-            �삤�뒛�쓽 �렪吏� 쨌 �떦�떊�쓽 �븯猷⑤�� �쓳�썝�빀�땲�떎.
-        </p>
-
+        <p>© 2025 오늘의 편지. All rights reserved.</p>
     </footer>
 
-
-    <!-- JavaScript -->
-    <script src="js/app.js"></script>
+    <script src="/js/app.js"></script>
 
 </body>
 </html>
