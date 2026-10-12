@@ -303,3 +303,14 @@ textarea:focus {
         margin-bottom: 64px;
     }
 }
+    .page {
+    display: none;
+}
+
+    .page.active {
+    display: block;
+ }
+
+    .hidden {
+    display: none !important;
+}
