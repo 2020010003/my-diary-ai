@@ -1,20 +1,22 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
     console.log("app.js 새 버전 로드됨");
 
+    const pages = document.querySelectorAll(".page");
+    const pageButtons = document.querySelectorAll("[data-page]");
+
     const form = document.getElementById("diaryForm");
     const diaryInput = document.getElementById("diaryInput");
     const sendButton = document.getElementById("sendButton");
     const buttonText = document.getElementById("buttonText");
     const loadingSpinner = document.getElementById("loadingSpinner");
-    const resultSection = document.getElementById("resultSection");
     const replyOutput = document.getElementById("replyOutput");
-     const pageButtons = document.querySelectorAll("[data-page]");
+    const errorMessage = document.getElementById("errorMessage");
 
     function showPage(pageId) {
         const targetPage = document.getElementById(pageId);
 
         if (!targetPage) {
-            console.warn("해당 페이지를 찾을 수 없습니다:", pageId);
+            console.warn("존재하지 않는 화면입니다:", pageId);
             return;
         }
 
@@ -31,20 +33,11 @@
     }
 
     pageButtons.forEach(function (button) {
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
-
-            const pageId = button.dataset.page;
+        button.addEventListener("click", function () {
+            const pageId = button.getAttribute("data-page");
             showPage(pageId);
         });
     });
-
-    // 처음 로드했을 때 active 페이지가 없으면 첫 번째 page를 보여줌
-    if (!document.querySelector(".page.active") && pages.length > 0) {
-        pages[0].classList.add("active");
-    }
-
-    const API_URL = "/api";
 
     function setLoading(isLoading) {
         if (sendButton) {
@@ -52,9 +45,7 @@
         }
 
         if (buttonText) {
-            buttonText.textContent = isLoading
-                ? "AI가 답장을 쓰고 있어요..."
-                : "답장 받기";
+            buttonText.textContent = isLoading ? "편지를 쓰는 중..." : "AI에게 편지 받기";
         }
 
         if (loadingSpinner) {
@@ -67,93 +58,55 @@
     }
 
     function showError(message) {
-        console.error(message);
+        if (!errorMessage) return;
 
-        if (errorMessage) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove("hidden");
-        }
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
     }
 
-    function hideError() {
-        if (errorMessage) {
-            errorMessage.textContent = "";
-            errorMessage.classList.add("hidden");
-        }
+    function clearError() {
+        if (!errorMessage) return;
+
+        errorMessage.textContent = "";
+        errorMessage.classList.add("hidden");
     }
 
-    function showResult(text) {
-        if (replyOutput) {
-            replyOutput.textContent = text;
+    function extractReply(data) {
+        if (!data) {
+            return "";
         }
 
-        if (resultSection) {
-            resultSection.classList.remove("hidden");
-        }
-    }
-
-    async function requestReply(diaryText) {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                diary: diaryText
-            })
-        });
-
-        let data = {};
-
-        try {
-            data = await response.json();
-        } catch (e) {
-            data = {};
+        if (typeof data === "string") {
+            return data;
         }
 
-        if (!response.ok) {
-            throw new Error(data.error || "서버 요청에 실패했습니다.");
+        if (data.reply) {
+            return data.reply;
         }
 
-        return (
-            data.reply ||
-            data.message ||
-            data.result ||
-            "답장을 받아왔지만 내용이 비어 있습니다."
-        );
+        if (data.message) {
+            return data.message;
+        }
+
+        if (data.content) {
+            return data.content;
+        }
+
+        if (
+            data.choices &&
+            data.choices[0] &&
+            data.choices[0].message &&
+            data.choices[0].message.content
+        ) {
+            return data.choices[0].message.content;
+        }
+
+        return "";
     }
 
     async function handleSubmit(event) {
-        if (event) {
-            event.preventDefault();
-        }
+        event.preventDefault();
 
-        hideError();
+        clearError();
 
-        const diaryText = diaryInput ? diaryInput.value.trim() : "";
-
-        if (!diaryText) {
-            showError("일기 내용을 입력해 주세요.");
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const reply = await requestReply(diaryText);
-            showResult(reply);
-        } catch (error) {
-            showError(error.message || "답장을 불러오는 중 오류가 발생했습니다.");
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    if (form) {
-        form.addEventListener("submit", handleSubmit);
-    }
-
-    if (sendButton) {
-        sendButton.addEventListener("click", handleSubmit);
-    }
-});
+        const diaryText = diaryInput ? diaryInput.value
