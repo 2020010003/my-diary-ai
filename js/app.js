@@ -110,3 +110,32 @@
         clearError();
 
         const diaryText = diaryInput ? diaryInput.value
+// 긴급 화면 전환 코드
+document.addEventListener("click", function (event) {
+    const button = event.target.closest("[data-page]");
+
+    if (!button) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const pageId = button.getAttribute("data-page");
+    const targetPage = document.getElementById(pageId);
+    const pages = document.querySelectorAll(".page");
+
+    console.log("화면 이동 버튼 클릭됨:", pageId);
+
+    if (!targetPage) {
+        console.error("이동할 화면을 찾을 수 없습니다:", pageId);
+        return;
+    }
+
+    pages.forEach(function (page) {
+        page.classList.remove("active");
+    });
+
+    targetPage.classList.add("active");
+
+    window.scrollTo(0, 0);
+});
