@@ -74,12 +74,13 @@
                     좋았던 일, 힘들었던 일, 마음에 남은 생각을 편하게 적어주세요.
                 </p>
 
-                <form id="diaryForm">
+                <form id="diaryForm" novalidate>
                     <textarea
                         id="diaryInput"
                         placeholder="예: 오늘은 조금 지쳤지만, 친구와 나눈 대화가 위로가 되었어요."
-                        required
+                        maxlength="2000"
                     ></textarea>
+                    <p id="charCount" class="char-count">0 / 2000자</p>
 
                     <p id="errorMessage" class="error-message hidden"></p>
 
@@ -136,113 +137,7 @@
         </section>
     </main>
 
-    <!-- 화면 전환 + API 요청 코드 -->
-    <script>
-        console.log("index.html 내부 스크립트 실행됨");
-
-        function showPage(pageId) {
-            console.log("이동할 화면:", pageId);
-
-            const pages = document.querySelectorAll(".page");
-            const targetPage = document.getElementById(pageId);
-
-            if (!targetPage) {
-                console.error("해당 id의 화면을 찾지 못했습니다:", pageId);
-                return;
-            }
-
-            pages.forEach(function (page) {
-                page.classList.remove("active");
-            });
-
-            targetPage.classList.add("active");
-            window.scrollTo(0, 0);
-        }
-
-        document.addEventListener("click", function (event) {
-            const button = event.target.closest("[data-page]");
-
-            if (!button) {
-                return;
-            }
-
-            event.preventDefault();
-
-            const pageId = button.getAttribute("data-page");
-            console.log("버튼 클릭됨:", pageId);
-
-            showPage(pageId);
-        });
-
-        const diaryForm = document.getElementById("diaryForm");
-        const diaryInput = document.getElementById("diaryInput");
-        const replyOutput = document.getElementById("replyOutput");
-        const errorMessage = document.getElementById("errorMessage");
-        const sendButton = document.getElementById("sendButton");
-        const buttonText = document.getElementById("buttonText");
-
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove("hidden");
-        }
-
-        function clearError() {
-            errorMessage.textContent = "";
-            errorMessage.classList.add("hidden");
-        }
-
-        if (diaryForm) {
-            diaryForm.addEventListener("submit", async function (event) {
-                event.preventDefault();
-
-                clearError();
-
-                const diaryText = diaryInput.value.trim();
-
-                if (!diaryText) {
-                    showError("오늘의 이야기를 먼저 적어주세요.");
-                    return;
-                }
-
-                sendButton.disabled = true;
-                buttonText.textContent = "편지를 쓰는 중...";
-
-                try {
-                    const response = await fetch("/api", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            diary: diaryText,
-                            message: diaryText
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || "AI 답장을 받지 못했습니다.");
-                    }
-
-                    const reply =
-                        data.reply ||
-                        data.message ||
-                        data.content ||
-                        "답장이 도착했지만 내용을 읽지 못했어요.";
-
-                    replyOutput.textContent = reply;
-                    showPage("letter");
-
-                } catch (error) {
-                    console.error(error);
-                    showError(error.message || "오류가 발생했습니다.");
-                } finally {
-                    sendButton.disabled = false;
-                    buttonText.textContent = "AI에게 편지 받기";
-                }
-            });
-        }
-<script src="/js/app.js?v=3"></script>
+    <!-- 화면 전환 + API 요청은 js/app.js 한 곳에서 처리합니다 -->
+    <script src="/js/app.js?v=4"></script>
 </body>
 </html>

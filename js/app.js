@@ -1,15 +1,24 @@
-﻿console.log("js/app.js 정상 로드됨");
+// 화면 전환과 AI 답장 요청을 처리합니다.
+// 상태는 세 가지입니다: 로딩(버튼 잠금) → 성공(답장 화면) → 실패(입력창 아래 안내 문구)
+
+const MIN_LENGTH = 10;
+const MAX_LENGTH = 2000;
+const TIMEOUT_MS = 30000;
 
 document.addEventListener("DOMContentLoaded", function () {
     const pages = document.querySelectorAll(".page");
+    const diaryForm = document.getElementById("diaryForm");
+    const diaryInput = document.getElementById("diaryInput");
+    const charCount = document.getElementById("charCount");
+    const replyOutput = document.getElementById("replyOutput");
+    const errorMessage = document.getElementById("errorMessage");
+    const sendButton = document.getElementById("sendButton");
+    const buttonText = document.getElementById("buttonText");
 
     function showPage(pageId) {
-        console.log("화면 이동:", pageId);
-
         const targetPage = document.getElementById(pageId);
 
         if (!targetPage) {
-            console.error("없는 화면 ID:", pageId);
             return;
         }
 
@@ -21,9 +30,76 @@ document.addEventListener("DOMContentLoaded", function () {
         window.scrollTo(0, 0);
     }
 
-    window.showPage = showPage;
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+    }
 
-    document.body.addEventListener("click", function (event) {
+    function clearError() {
+        errorMessage.textContent = "";
+        errorMessage.classList.add("hidden");
+    }
+
+    function setLoading(isLoading) {
+        sendButton.disabled = isLoading;
+        buttonText.textContent = isLoading ? "편지를 쓰는 중..." : "AI에게 편지 받기";
+    }
+
+    function validate(text) {
+        if (!text) {
+            return "오늘의 이야기를 한 줄이라도 작성해주세요.";
+        }
+        if (text.length < MIN_LENGTH) {
+            return "조금만 더 자세하게 이야기를 적어주세요. (" + MIN_LENGTH + "자 이상)";
+        }
+        if (text.length > MAX_LENGTH) {
+            return "일기는 " + MAX_LENGTH + "자까지 보낼 수 있어요.";
+        }
+        return "";
+    }
+
+    // 서버가 JSON 대신 HTML 오류 페이지를 줄 때도(배포 오류 등) 안내 문구가 나오게 합니다.
+    async function readJson(response) {
+        try {
+            return await response.json();
+        } catch (error) {
+            return {};
+        }
+    }
+
+    async function requestReply(diaryText) {
+        const controller = new AbortController();
+        const timer = setTimeout(function () {
+            controller.abort();
+        }, TIMEOUT_MS);
+
+        try {
+            const response = await fetch("/api", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ diary: diaryText }),
+                signal: controller.signal
+            });
+            const data = await readJson(response);
+
+            if (!response.ok) {
+                throw new Error(data.error || "AI 답장을 받지 못했습니다. 잠시 후 다시 시도해주세요.");
+            }
+            if (!data.reply) {
+                throw new Error("답장이 도착했지만 내용을 읽지 못했어요.");
+            }
+            return data.reply;
+        } catch (error) {
+            if (error.name === "AbortError") {
+                throw new Error("답장이 늦어지고 있어요. 잠시 후 다시 시도해주세요.");
+            }
+            throw error;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    document.addEventListener("click", function (event) {
         const button = event.target.closest("[data-page]");
 
         if (!button) {
@@ -31,56 +107,34 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         event.preventDefault();
-
-        const pageId = button.getAttribute("data-page");
-        showPage(pageId);
+        showPage(button.getAttribute("data-page"));
     });
 
-    const diaryForm = document.getElementById("diaryForm");
-    const diaryInput = document.getElementById("diaryInput");
-    const replyOutput = document.getElementById("replyOutput");
-
-    if (!diaryForm) {
-        console.log("diaryForm 없음. 화면 전환만 사용합니다.");
-        return;
-    }
+    diaryInput.addEventListener("input", function () {
+        charCount.textContent = diaryInput.value.length + " / " + MAX_LENGTH + "자";
+    });
 
     diaryForm.addEventListener("submit", async function (event) {
         event.preventDefault();
+        clearError();
 
         const diaryText = diaryInput.value.trim();
+        const problem = validate(diaryText);
 
-        if (!diaryText) {
-            alert("일기를 먼저 입력해주세요.");
+        if (problem) {
+            showError(problem);
             return;
         }
 
+        setLoading(true);
+
         try {
-            const response = await fetch("/api", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    diary: diaryText,
-                    message: diaryText
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "AI 답장을 받지 못했습니다.");
-            }
-
-            if (replyOutput) {
-                replyOutput.textContent = data.reply || data.message || "답장이 도착했어요.";
-            }
-
+            replyOutput.textContent = await requestReply(diaryText);
             showPage("letter");
         } catch (error) {
-            console.error(error);
-            alert("오류가 발생했습니다: " + error.message);
+            showError(error.message || "오류가 발생했습니다.");
+        } finally {
+            setLoading(false);
         }
     });
 });
