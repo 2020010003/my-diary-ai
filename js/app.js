@@ -1,9 +1,9 @@
 // 화면 전환과 AI 답장 요청을 처리합니다.
 // 상태는 세 가지입니다: 로딩(버튼 잠금) → 성공(답장 화면) → 실패(입력창 아래 안내 문구)
+// 응답 시간 초과는 서버(api/index.py)가 판단해 504 안내 문구로 돌려줍니다.
 
 const MIN_LENGTH = 10;
 const MAX_LENGTH = 2000;
-const TIMEOUT_MS = 30000;
 
 document.addEventListener("DOMContentLoaded", function () {
     const pages = document.querySelectorAll(".page");
@@ -70,43 +70,32 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             return await response.json();
         } catch (error) {
-            if (error.name === "AbortError") {
-                throw error;
-            }
             return {};
         }
     }
 
     async function requestReply(diaryText) {
-        const controller = new AbortController();
-        const timer = setTimeout(function () {
-            controller.abort();
-        }, TIMEOUT_MS);
+        let response;
 
         try {
-            const response = await fetch("/api", {
+            response = await fetch("/api", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ diary: diaryText }),
-                signal: controller.signal
+                body: JSON.stringify({ diary: diaryText })
             });
-            const data = await readJson(response);
-
-            if (!response.ok) {
-                throw new Error(data.error || "AI 답장을 받지 못했습니다. 잠시 후 다시 시도해주세요.");
-            }
-            if (!data.reply) {
-                throw new Error("답장이 도착했지만 내용을 읽지 못했어요.");
-            }
-            return data.reply;
         } catch (error) {
-            if (error.name === "AbortError") {
-                throw new Error("답장이 늦어지고 있어요. 잠시 후 다시 시도해주세요.");
-            }
-            throw error;
-        } finally {
-            clearTimeout(timer);
+            throw new Error("인터넷 연결을 확인하고 다시 시도해주세요.");
         }
+
+        const data = await readJson(response);
+
+        if (!response.ok) {
+            throw new Error(data.error || "AI 답장을 받지 못했습니다. 잠시 후 다시 시도해주세요.");
+        }
+        if (!data.reply) {
+            throw new Error("답장이 도착했지만 내용을 읽지 못했어요.");
+        }
+        return data.reply;
     }
 
     document.addEventListener("click", function (event) {

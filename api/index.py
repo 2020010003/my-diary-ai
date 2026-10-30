@@ -117,12 +117,26 @@ class handler(BaseHTTPRequestHandler):
         # 일기 내용 확인
         # ==============================
 
-        diary = str(
-            data.get(
-                "diary",
-                ""
+        diary = data.get(
+            "diary",
+            ""
+        )
+
+
+        if not isinstance(diary, str):
+
+            self.send_json(
+                400,
+                {
+                    "error":
+                    "잘못된 요청입니다."
+                }
             )
-        ).strip()
+
+            return
+
+
+        diary = diary.strip()
 
 
         if not diary:
