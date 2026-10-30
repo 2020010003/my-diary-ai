@@ -225,6 +225,13 @@ textarea:focus {
     box-shadow: 0 0 0 3px rgba(155, 114, 90, 0.15);
 }
 
+.char-count {
+    margin: 8px 4px 0;
+    text-align: right;
+    color: #9b8577;
+    font-size: 14px;
+}
+
 .error-message {
     margin: 14px 0;
     color: #c0392b;

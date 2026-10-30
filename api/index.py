@@ -7,6 +7,10 @@ from http.server import BaseHTTPRequestHandler
 
 CODYSSEY_API_URL = "https://copa.codyssey.kr/v1/chat/completions"
 
+# 화면(js/app.js)과 같은 기준입니다. 화면 검사를 건너뛴 요청도 서버에서 한 번 더 막습니다.
+MIN_DIARY_LENGTH = 10
+MAX_DIARY_LENGTH = 2000
+
 load_dotenv()
 
 class handler(BaseHTTPRequestHandler):
@@ -93,6 +97,9 @@ class handler(BaseHTTPRequestHandler):
                 body.decode("utf-8")
             )
 
+            if not isinstance(data, dict):
+                raise ValueError("JSON 객체가 아닙니다.")
+
         except Exception:
 
             self.send_json(
@@ -113,7 +120,23 @@ class handler(BaseHTTPRequestHandler):
         diary = data.get(
             "diary",
             ""
-        ).strip()
+        )
+
+
+        if not isinstance(diary, str):
+
+            self.send_json(
+                400,
+                {
+                    "error":
+                    "잘못된 요청입니다."
+                }
+            )
+
+            return
+
+
+        diary = diary.strip()
 
 
         if not diary:
@@ -122,7 +145,33 @@ class handler(BaseHTTPRequestHandler):
                 400,
                 {
                     "error":
-                    "일기 내용을 입력해주세요."
+                    "오늘의 이야기를 한 줄이라도 작성해주세요."
+                }
+            )
+
+            return
+
+
+        if len(diary) < MIN_DIARY_LENGTH:
+
+            self.send_json(
+                400,
+                {
+                    "error":
+                    f"조금만 더 자세하게 이야기를 적어주세요. ({MIN_DIARY_LENGTH}자 이상)"
+                }
+            )
+
+            return
+
+
+        if len(diary) > MAX_DIARY_LENGTH:
+
+            self.send_json(
+                400,
+                {
+                    "error":
+                    f"일기는 {MAX_DIARY_LENGTH}자까지 보낼 수 있어요."
                 }
             )
 

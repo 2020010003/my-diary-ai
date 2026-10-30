@@ -72,7 +72,7 @@ AI의 답변이 사용자의 고민을 해결해주는 정답이라기보다는,
      ↓
 [JavaScript]
      ↓
-POST /api/diary
+POST /api
      ↓
 [Python 백엔드 API]
      ↓
@@ -223,7 +223,7 @@ Codyssey AI
     ↓
 JavaScript
     ↓
-POST /api/diary
+POST /api
     ↓
 Python API
     ↓
@@ -257,11 +257,11 @@ JavaScript가 AI 답장 화면에 표시합니다.
 │   fetch()     │
 └───────┬───────┘
         │
-        │ POST /api/diary
+        │ POST /api
         ↓
 ┌───────────────┐
 │ Python API    │
-│ api/diary.py  │
+│ api/index.py  │
 └───────┬───────┘
         │
         │ API Key
@@ -327,9 +327,11 @@ my-diary-ai/
 │   └── app.js
 │
 ├── api/
-│   └── diary.py
+│   └── index.py
 │
 ├── local_server.py
+│
+├── vercel.json
 │
 ├── requirements.txt
 │
@@ -365,7 +367,7 @@ my-diary-ai/
    ↓
 입력값 검증
    ↓
-fetch('/api/diary')
+fetch('/api')
    ↓
 AI 답장 수신
    ↓
@@ -374,7 +376,7 @@ AI 답장 수신
 
 특히 API 요청이 진행되는 동안 버튼 상태와 로딩 표시를 변경하고, API 오류나 timeout이 발생했을 때 사용자에게 안내 메시지를 보여주도록 구현했습니다.
 
-### `api/diary.py`
+### `api/index.py`
 
 Python 백엔드 API입니다.
 
@@ -400,7 +402,7 @@ JSON 형태로 답장 반환
 
 Vercel에 배포하기 전에 로컬 컴퓨터에서 API 동작을 테스트하기 위해 만든 서버입니다.
 
-개발 과정에서 단순한 정적 웹 서버만 사용했을 때 `POST /api/diary` 요청을 처리할 수 없는 문제가 있었기 때문에, frontend와 Python API를 함께 테스트하기 위한 용도로 구성했습니다.
+개발 과정에서 단순한 정적 웹 서버만 사용했을 때 `POST /api` 요청을 처리할 수 없는 문제가 있었기 때문에, frontend와 Python API를 함께 테스트하기 위한 용도로 구성했습니다.
 
 ---
 
@@ -416,11 +418,19 @@ AI 기능은 외부 API와 통신하기 때문에 정상적인 상황뿐만 아�
 오늘의 이야기를 한 줄이라도 작성해주세요.
 ```
 
-### 너무 짧은 일기
+### 너무 짧은 일기 (10자 미만)
 
 ```text
-조금만 더 자세하게 이야기를 적어주세요.
+조금만 더 자세하게 이야기를 적어주세요. (10자 이상)
 ```
+
+### 너무 긴 일기 (2000자 초과)
+
+```text
+일기는 2000자까지 보낼 수 있어요.
+```
+
+입력창 아래에 `0 / 2000자` 글자 수가 표시되고, 화면(`js/app.js`)과 서버(`api/index.py`)가 같은 기준으로 한 번씩 검사합니다.
 
 ### AI 서버 연결 오류
 
@@ -431,9 +441,10 @@ AI 서버에 연결하지 못했습니다.
 ### AI 응답 시간 초과
 
 ```text
-AI의 답장이 늦어지고 있습니다.
-잠시 후 다시 시도해주세요.
+AI 응답 시간이 초과되었습니다.
 ```
+
+서버(`api/index.py`)가 AI 서버를 25초까지 기다리고, 넘으면 504 와 이 문구를 돌려줍니다.
 
 ### 잘못된 AI 응답
 
@@ -476,9 +487,11 @@ my-diary-ai/
 │   └── app.js
 │
 ├── api/
-│   └── diary.py
+│   └── index.py
 │
 ├── local_server.py
+│
+├── vercel.json
 │
 ├── requirements.txt
 │
@@ -568,7 +581,7 @@ AI에게 일기를 보내고 답변을 받는 것만 구현하면 기술적으�
 
 또한 API 키를 frontend 코드에 직접 넣는 방식은 보안상 적절하지 않기 때문에 Python API를 중간에 두었습니다.
 
-개발 과정에서는 단순한 정적 웹 서버로 먼저 화면을 확인한 뒤 AI 기능을 연결했고, `POST /api/diary` 요청을 처리하기 위해 별도의 Python 로컬 서버를 구성하는 과정도 진행했습니다.
+개발 과정에서는 단순한 정적 웹 서버로 먼저 화면을 확인한 뒤 AI 기능을 연결했고, `POST /api` 요청을 처리하기 위해 별도의 Python 로컬 서버를 구성하는 과정도 진행했습니다.
 
 이 과정을 통해 단순히 화면을 만드는 것에서 끝나는 것이 아니라,
 
