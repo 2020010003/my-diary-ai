@@ -45,14 +45,21 @@ document.addEventListener("DOMContentLoaded", function () {
         buttonText.textContent = isLoading ? "편지를 쓰는 중..." : "AI에게 편지 받기";
     }
 
+    // 이모지처럼 두 칸을 차지하는 글자도 1자로 셉니다(서버 Python len 과 같은 기준).
+    function countChars(text) {
+        return Array.from(text).length;
+    }
+
     function validate(text) {
+        const length = countChars(text);
+
         if (!text) {
             return "오늘의 이야기를 한 줄이라도 작성해주세요.";
         }
-        if (text.length < MIN_LENGTH) {
+        if (length < MIN_LENGTH) {
             return "조금만 더 자세하게 이야기를 적어주세요. (" + MIN_LENGTH + "자 이상)";
         }
-        if (text.length > MAX_LENGTH) {
+        if (length > MAX_LENGTH) {
             return "일기는 " + MAX_LENGTH + "자까지 보낼 수 있어요.";
         }
         return "";
@@ -63,6 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             return await response.json();
         } catch (error) {
+            if (error.name === "AbortError") {
+                throw error;
+            }
             return {};
         }
     }
@@ -111,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     diaryInput.addEventListener("input", function () {
-        charCount.textContent = diaryInput.value.length + " / " + MAX_LENGTH + "자";
+        charCount.textContent = countChars(diaryInput.value) + " / " + MAX_LENGTH + "자";
     });
 
     diaryForm.addEventListener("submit", async function (event) {
