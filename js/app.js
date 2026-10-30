@@ -110,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     diaryInput.addEventListener("input", function () {
-        charCount.textContent = countChars(diaryInput.value) + " / " + MAX_LENGTH + "자";
+        charCount.textContent = countChars(diaryInput.value.trim()) + " / " + MAX_LENGTH + "자";
     });
 
     diaryForm.addEventListener("submit", async function (event) {
