@@ -190,6 +190,99 @@ def load_recent_memories(user_id: str, limit: int = 5) -> list:
         return []
 
 
+# ==============================
+# 설정 / 마음 기록 화면용 (오류는 밖으로 내보내서 API에서 안내 메시지로 처리)
+# ==============================
+
+def is_available() -> bool:
+    """Firestore를 사용할 수 있는지"""
+    return get_db() is not None
+
+
+def get_settings(user_id: str) -> dict:
+    """users/{user_id}의 설정값. 문서가 없으면 기본값으로 만든 뒤 돌려줌"""
+    ensure_user(user_id)
+
+    snapshot = get_db().collection("users").document(user_id).get()
+    data = (snapshot.to_dict() if snapshot.exists else None) or {}
+
+    return {
+        "email": data.get("email") or "",
+        "notify_time": data.get("notify_time") or "",
+        "notify_enabled": data.get("notify_enabled") is True,
+        "memory_enabled": data.get("memory_enabled") is True,
+    }
+
+
+def update_settings(user_id: str, email, notify_time, notify_enabled: bool,
+                    memory_enabled: bool) -> None:
+    """설정 저장. 기억 기능을 새로 켜면 consent_at을 현재 시각으로 기록"""
+    from firebase_admin import firestore
+
+    ensure_user(user_id)
+
+    user_ref = get_db().collection("users").document(user_id)
+    snapshot = user_ref.get()
+    before = (snapshot.to_dict() if snapshot.exists else None) or {}
+
+    changes = {
+        "email": email,
+        "notify_time": notify_time,
+        "notify_enabled": notify_enabled,
+        "memory_enabled": memory_enabled,
+    }
+
+    if memory_enabled and before.get("memory_enabled") is not True:
+        changes["consent_at"] = firestore.SERVER_TIMESTAMP
+
+    user_ref.update(changes)
+
+
+def list_memories(user_id: str, limit: int = 100) -> list:
+    """내 감정 기록을 최신순으로 (화면 표시용 필드만)"""
+    from firebase_admin import firestore
+
+    docs = (
+        get_db().collection("users").document(user_id).collection("memories")
+        .order_by("created_at", direction=firestore.Query.DESCENDING)
+        .limit(limit)
+        .stream()
+    )
+
+    result = []
+    for doc in docs:
+        item = doc.to_dict() or {}
+        result.append({
+            "date": item.get("date") or "",
+            "emotion": item.get("emotion") or "",
+            "intensity": item.get("intensity"),
+            "situation": item.get("situation") or "",
+        })
+    return result
+
+
+def delete_memories(user_id: str) -> int:
+    """users/{user_id}/memories의 기록을 모두 삭제하고 삭제한 개수를 돌려줌"""
+    db = get_db()
+    memories_ref = db.collection("users").document(user_id).collection("memories")
+
+    deleted = 0
+    while True:
+        # 한 번에 최대 400개씩 묶어서 삭제 (Firestore batch 한도 500)
+        docs = list(memories_ref.limit(400).stream())
+        if not docs:
+            break
+
+        batch = db.batch()
+        for doc in docs:
+            batch.delete(doc.reference)
+        batch.commit()
+        deleted += len(docs)
+
+    _log(f"마음 기록 삭제 개수: {deleted}")
+    return deleted
+
+
 def save_memory(user_id: str, memory: dict) -> None:
     """memory_enabled가 true인 사용자만 users/{user_id}/memories에 감정 요약 저장"""
     if not is_valid_user_id(user_id) or not isinstance(memory, dict):

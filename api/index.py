@@ -7,6 +7,8 @@
                     · users/{user_id} 문서가 없으면 만들고, memory_consent로 동의 여부 갱신
                     · 동의한 사용자는 최근 감정 기록 5개를 시스템 프롬프트에 넣어 편지에 반영
                     · 동의한 사용자만 감정 요약을 memories에 저장 (일기 원문은 저장하지 않음)
+- GET/POST /api/settings  : 알림 이메일·시간·알림 켜기·기억 기능 설정 조회/저장
+- GET/DELETE /api/memories : 내 감정 기록 목록 조회 / 전체 삭제
 - GET  /          : index.html 제공
 - /css, /js       : 정적 파일 제공 (Vercel에서는 빌드 시 CDN으로 옮겨짐)
 
@@ -17,6 +19,7 @@ import json
 import os
 import re
 import time
+from datetime import datetime
 from pathlib import Path
 
 import requests
@@ -115,11 +118,38 @@ MEMORY_PROMPT_RULES = """
 2. 과거 기록을 나열하거나 분석하지 마세요.
 3. 오늘 일기와 관계없으면 언급하지 않아도 됩니다.
 4. 감정 요약("memory")은 과거 기록이 아니라 오늘 일기만 보고 작성하세요.
+5. 과거 기록을 언급할 때는 기록 날짜를 오늘 날짜와 비교해 시점을 정확하게 표현하세요.
+   같은 날이면 "아까" 또는 "오늘", 하루 전이면 "어제", 이틀 전이면 "그저께",
+   그보다 전이면 "며칠 전"처럼 표현하고, 날짜 차이와 맞지 않는 표현은 쓰지 마세요.
+   각 기록 옆 괄호 안의 표시(오늘/어제/N일 전)를 기준으로 삼으세요.
 """
 
 
-def format_memory_line(memory: dict):
-    """감정 기록 한 개를 "- 11/05 피곤(3): 과제가 많아 잠을 못 잠" 형식으로. 쓸 수 없으면 None"""
+def today_kst():
+    """한국 시간 기준 오늘 날짜"""
+    return datetime.now(memory_store.KST).date()
+
+
+def relative_day_label(date_text: str, today) -> str:
+    """기록 날짜와 오늘 날짜의 차이를 "오늘/어제/그저께/N일 전"으로. 계산할 수 없으면 빈 문자열"""
+    try:
+        diff = (today - datetime.strptime(date_text, "%Y-%m-%d").date()).days
+    except (TypeError, ValueError):
+        return ""
+
+    if diff == 0:
+        return "오늘"
+    if diff == 1:
+        return "어제"
+    if diff == 2:
+        return "그저께"
+    if diff > 2:
+        return f"{diff}일 전"
+    return ""
+
+
+def format_memory_line(memory: dict, today=None):
+    """감정 기록 한 개를 "- 11/05(어제) 피곤(3): 과제가 많아 잠을 못 잠" 형식으로. 쓸 수 없으면 None"""
     date = memory.get("date")
     emotion = memory.get("emotion")
     if not isinstance(date, str) or not isinstance(emotion, str):
@@ -128,6 +158,10 @@ def format_memory_line(memory: dict):
     # "2026-11-05" → "11/05"
     parts = date.split("-")
     short_date = f"{parts[1]}/{parts[2]}" if len(parts) == 3 else date
+
+    label = relative_day_label(date, today) if today else ""
+    if label:
+        short_date += f"({label})"
 
     line = f"- {short_date} {emotion}"
 
@@ -143,15 +177,18 @@ def format_memory_line(memory: dict):
 
 
 def build_system_prompt(memories) -> str:
-    """기본 편지 규칙 + (기록이 있을 때만) 최근 감정 기록과 사용 규칙"""
-    lines = [line for line in (format_memory_line(m) for m in memories or []) if line]
+    """기본 편지 규칙 + 오늘 날짜 + (기록이 있을 때만) 최근 감정 기록과 사용 규칙"""
+    today = today_kst()
+    base = SYSTEM_PROMPT + f"\n오늘 날짜(한국 시간): {today.isoformat()}\n"
+
+    lines = [line for line in (format_memory_line(m, today) for m in memories or []) if line]
 
     # 기록이 없으면 기억 부분은 넣지 않음
     if not lines:
-        return SYSTEM_PROMPT
+        return base
 
     return (
-        SYSTEM_PROMPT
+        base
         + "\n" + MEMORY_PROMPT_HEADER + "\n"
         + "\n".join(lines) + "\n"
         + MEMORY_PROMPT_RULES
@@ -433,6 +470,123 @@ async def create_letter(request: Request):
 
     # 프론트엔드로 AI 답장 + 감정 요약 전달
     return {"reply": reply, "memory": memory}
+
+
+# ==============================
+# API: 설정 / 마음 기록
+# 모든 요청은 user_id로 본인 문서(users/{user_id})만 다룸
+# ==============================
+
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+TIME_PATTERN = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+
+STORE_UNAVAILABLE_MESSAGE = "서버에 기록 저장소(Firestore)가 설정되지 않아 이 기능을 사용할 수 없어요."
+
+
+def check_store(user_id):
+    """user_id 형식과 Firestore 사용 가능 여부 확인. 문제가 있으면 오류 응답, 없으면 None"""
+    if not memory_store.is_valid_user_id(user_id):
+        return error_response(400, "사용자 정보가 올바르지 않아요. 페이지를 새로고침해주세요.")
+
+    if not memory_store.is_available():
+        return error_response(503, STORE_UNAVAILABLE_MESSAGE)
+
+    return None
+
+
+@app.get("/api/settings")
+async def read_settings(user_id: str = ""):
+    error = await run_in_threadpool(check_store, user_id)
+    if error is not None:
+        return error
+
+    try:
+        settings = await run_in_threadpool(memory_store.get_settings, user_id)
+    except Exception as exc:
+        log(f"설정 불러오기 실패: {type(exc).__name__}")
+        return error_response(500, "설정을 불러오지 못했어요. 잠시 후 다시 시도해주세요.")
+
+    return settings
+
+
+@app.post("/api/settings")
+async def save_settings(request: Request):
+    try:
+        data = await request.json()
+    except Exception:
+        return error_response(400, "잘못된 요청입니다.")
+
+    if not isinstance(data, dict):
+        return error_response(400, "잘못된 요청입니다.")
+
+    user_id = data.get("user_id")
+    error = await run_in_threadpool(check_store, user_id)
+    if error is not None:
+        return error
+
+    email = data.get("email") or ""
+    notify_time = data.get("notify_time") or ""
+    notify_enabled = data.get("notify_enabled")
+    memory_enabled = data.get("memory_enabled")
+
+    if not isinstance(email, str) or not isinstance(notify_time, str):
+        return error_response(400, "잘못된 요청입니다.")
+    if not isinstance(notify_enabled, bool) or not isinstance(memory_enabled, bool):
+        return error_response(400, "잘못된 요청입니다.")
+
+    email = email.strip()
+    notify_time = notify_time.strip()
+
+    # 형식 검사 (비어 있으면 저장하지 않음 = null)
+    if email and (len(email) > 254 or not EMAIL_PATTERN.match(email)):
+        return error_response(400, "이메일 형식이 올바르지 않아요.")
+    if notify_time and not TIME_PATTERN.match(notify_time):
+        return error_response(400, "알림 시간은 HH:MM 형식(예: 21:30)으로 입력해주세요.")
+
+    # 알림을 켜려면 이메일과 시간이 모두 있어야 함
+    if notify_enabled and (not email or not notify_time):
+        return error_response(400, "알림을 받으려면 이메일과 알림 시간을 모두 입력해주세요.")
+
+    try:
+        await run_in_threadpool(
+            memory_store.update_settings,
+            user_id, email or None, notify_time or None, notify_enabled, memory_enabled,
+        )
+    except Exception as exc:
+        log(f"설정 저장 실패: {type(exc).__name__}")
+        return error_response(500, "설정을 저장하지 못했어요. 잠시 후 다시 시도해주세요.")
+
+    return {"ok": True}
+
+
+@app.get("/api/memories")
+async def read_memories(user_id: str = ""):
+    error = await run_in_threadpool(check_store, user_id)
+    if error is not None:
+        return error
+
+    try:
+        memories = await run_in_threadpool(memory_store.list_memories, user_id)
+    except Exception as exc:
+        log(f"마음 기록 불러오기 실패: {type(exc).__name__}")
+        return error_response(500, "마음 기록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.")
+
+    return {"memories": memories}
+
+
+@app.delete("/api/memories")
+async def remove_memories(user_id: str = ""):
+    error = await run_in_threadpool(check_store, user_id)
+    if error is not None:
+        return error
+
+    try:
+        deleted = await run_in_threadpool(memory_store.delete_memories, user_id)
+    except Exception as exc:
+        log(f"마음 기록 삭제 실패: {type(exc).__name__}")
+        return error_response(500, "마음 기록을 삭제하지 못했어요. 잠시 후 다시 시도해주세요.")
+
+    return {"ok": True, "deleted": deleted}
 
 
 # ==============================
