@@ -4,3 +4,4 @@ requests==2.32.5
 python-dotenv==1.1.1
 fastapi==0.120.4
 uvicorn==0.38.0
+firebase-admin==7.7.0

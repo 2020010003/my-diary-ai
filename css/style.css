@@ -366,6 +366,48 @@ textarea::placeholder {
 }
 
 
+/* 감정 기록 저장 동의 */
+.consent-box {
+    margin: 0 0 20px;
+
+    padding: 14px 16px;
+
+    border: 1px solid #ece3da;
+    border-radius: 12px;
+
+    background: #fbf7f1;
+}
+
+.diary-card .consent-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 6px;
+
+    font-size: 14px;
+    font-weight: 700;
+    color: #56483f;
+
+    cursor: pointer;
+}
+
+.consent-label input {
+    width: 16px;
+    height: 16px;
+
+    accent-color: #a47b61;
+
+    cursor: pointer;
+}
+
+.consent-description {
+    font-size: 12px;
+    line-height: 1.7;
+    color: #8f8178;
+}
+
+
 /* =========================
    MESSAGE
 ========================= */
@@ -512,6 +554,22 @@ textarea::placeholder {
     line-height: 1.5;
 }
 
+/* 오늘의 마음 (감정 요약) */
+.letter-memory {
+    margin-top: 30px;
+
+    font-size: 13px;
+    color: #8f7565;
+}
+
+/* AI 작성 표시 */
+.ai-notice {
+    margin-top: 10px;
+
+    font-size: 12px;
+    color: #a19791;
+}
+
 .secondary-button {
     display: block;
 
@@ -534,6 +592,350 @@ textarea::placeholder {
 .secondary-button:hover {
     background: #80624f;
     color: white;
+}
+
+
+/* =========================
+   MEMORIES / SETTINGS 공통
+========================= */
+
+.narrow-container {
+    max-width: 680px;
+}
+
+.paper-card {
+    background: #fffdf8;
+
+    border-radius: 18px;
+
+    padding: 35px;
+
+    box-shadow:
+        0 15px 45px rgba(75, 55, 40, 0.08);
+}
+
+.card-status {
+    margin-bottom: 15px;
+
+    font-size: 14px;
+    color: #8f8178;
+}
+
+.message.success {
+    background: #eef0e4;
+    color: #5f6b45;
+}
+
+
+/* =========================
+   MEMORIES
+========================= */
+
+.memories-empty {
+    padding: 30px 0;
+
+    text-align: center;
+
+    font-family: Georgia, serif;
+    color: #9a8a7f;
+}
+
+.memories-list {
+    list-style: none;
+}
+
+.memory-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 14px;
+
+    padding: 16px 4px;
+
+    border-bottom: 1px dashed #e2d8cf;
+}
+
+.memory-item:last-child {
+    border-bottom: none;
+}
+
+.memory-date {
+    min-width: 92px;
+
+    font-family: Georgia, serif;
+    font-size: 13px;
+    color: #a08b7d;
+}
+
+.memory-emotion {
+    padding: 2px 10px;
+
+    border-radius: 999px;
+
+    background: #f3e9df;
+
+    font-size: 13px;
+    font-weight: 700;
+    color: #80624f;
+}
+
+.memory-intensity {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #b99a83;
+}
+
+.memory-situation {
+    flex-basis: 100%;
+
+    padding-left: 106px;
+
+    font-size: 14px;
+    color: #5d5047;
+}
+
+.delete-area {
+    margin-top: 25px;
+    padding-top: 18px;
+
+    border-top: 1px solid #ece3da;
+
+    text-align: right;
+}
+
+.text-button {
+    border: none;
+    background: none;
+
+    font-size: 13px;
+
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.danger-text {
+    color: #a4685c;
+}
+
+.delete-confirm {
+    margin-top: 14px;
+    padding: 16px 18px;
+
+    border: 1px solid #ecd2cc;
+    border-radius: 12px;
+
+    background: #fbf1ee;
+
+    text-align: left;
+
+    font-size: 14px;
+    color: #7f5249;
+}
+
+.confirm-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+
+    margin-top: 12px;
+}
+
+.small-button {
+    border: 1px solid #d7c7ba;
+    border-radius: 9px;
+
+    padding: 8px 16px;
+
+    background: #fffdf8;
+
+    font-size: 13px;
+    color: #6e5a4d;
+
+    transition: 0.2s;
+}
+
+.small-button:hover {
+    background: #f3ebe3;
+}
+
+.small-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.danger-button {
+    border-color: #a4685c;
+
+    background: #a4685c;
+    color: white;
+}
+
+.danger-button:hover {
+    background: #8c5449;
+}
+
+
+/* =========================
+   SETTINGS
+========================= */
+
+.card-heading {
+    margin-bottom: 6px;
+
+    font-size: 17px;
+    color: #56483f;
+}
+
+.card-heading-gap {
+    margin-top: 32px;
+    padding-top: 26px;
+
+    border-top: 1px solid #ece3da;
+}
+
+.card-description {
+    margin-bottom: 20px;
+
+    font-size: 13px;
+    line-height: 1.7;
+    color: #8f8178;
+}
+
+.form-field {
+    margin-bottom: 16px;
+}
+
+.form-field label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 14px;
+    font-weight: 700;
+    color: #56483f;
+}
+
+.form-field input {
+    width: 100%;
+
+    border: 1px solid #e2d8cf;
+    border-radius: 10px;
+
+    padding: 12px 14px;
+
+    background: #fffdfa;
+
+    font-family: inherit;
+    font-size: 15px;
+    color: #51463f;
+
+    outline: none;
+
+    transition: 0.2s;
+}
+
+.form-field input:focus {
+    border-color: #b99a83;
+
+    box-shadow:
+        0 0 0 4px rgba(185, 154, 131, 0.12);
+}
+
+/* 켜기/끄기 스위치 */
+.toggle-row {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+
+    padding: 14px 16px;
+
+    border: 1px solid #ece3da;
+    border-radius: 12px;
+
+    background: #fbf7f1;
+
+    cursor: pointer;
+}
+
+.toggle-row + .toggle-row {
+    margin-top: 10px;
+}
+
+.toggle-text strong {
+    display: block;
+
+    font-size: 14px;
+    color: #56483f;
+}
+
+.toggle-text small {
+    display: block;
+
+    font-size: 12px;
+    line-height: 1.6;
+    color: #8f8178;
+}
+
+/* 실제 체크박스는 숨기고 스위치 모양으로 표시 (키보드 포커스는 유지) */
+.toggle-input {
+    position: absolute;
+
+    opacity: 0;
+
+    width: 1px;
+    height: 1px;
+}
+
+.toggle-switch {
+    position: relative;
+    flex-shrink: 0;
+
+    width: 44px;
+    height: 24px;
+
+    border-radius: 999px;
+
+    background: #dcd0c5;
+
+    transition: 0.2s;
+}
+
+.toggle-switch::after {
+    content: "";
+
+    position: absolute;
+    top: 3px;
+    left: 3px;
+
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow: 0 1px 3px rgba(70, 50, 35, 0.2);
+
+    transition: 0.2s;
+}
+
+.toggle-input:checked + .toggle-switch {
+    background: #a47b61;
+}
+
+.toggle-input:checked + .toggle-switch::after {
+    transform: translateX(20px);
+}
+
+.toggle-input:focus-visible + .toggle-switch {
+    box-shadow: 0 0 0 4px rgba(185, 154, 131, 0.3);
+}
+
+.settings-save {
+    margin-top: 28px;
 }
 
 
@@ -693,10 +1095,28 @@ textarea::placeholder {
 
 @media (max-width: 600px) {
 
+    /* 메뉴가 5개라 좁은 화면에서는 로고 아래 줄로 내림 */
     .header-inner {
-        height: 62px;
+        height: auto;
 
-        padding: 0 16px;
+        padding: 10px 16px;
+
+        flex-wrap: wrap;
+        row-gap: 6px;
+    }
+
+    .nav {
+        width: 100%;
+
+        justify-content: space-between;
+    }
+
+    .paper-card {
+        padding: 22px 18px;
+    }
+
+    .memory-situation {
+        padding-left: 0;
     }
 
     .logo {

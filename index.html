@@ -22,6 +22,8 @@
             <nav class="nav">
                 <a href="#home" data-page="home">홈</a>
                 <a href="#write" data-page="write">일기 쓰기</a>
+                <a href="#memories" data-page="memories">마음 기록</a>
+                <a href="#settings" data-page="settings">설정</a>
                 <a href="#about" data-page="about">서비스 소개</a>
             </nav>
 
@@ -148,6 +150,29 @@
                     </div>
 
 
+                    <!-- 감정 기록 저장 동의 -->
+                    <div class="consent-box">
+
+                        <label
+                            for="memory-consent"
+                            class="consent-label">
+
+                            <input
+                                type="checkbox"
+                                id="memory-consent">
+
+                            <span>감정 기록 저장에 동의합니다</span>
+
+                        </label>
+
+                        <p class="consent-description">
+                            일기 원문은 저장하지 않고, AI가 만든 감정 요약(감정, 강도, 한 줄 상황)만 저장해
+                            다음 편지에 반영합니다. 작성한 일기는 답장 생성을 위해 외부 AI 서비스로 전송됩니다.
+                        </p>
+
+                    </div>
+
+
                     <button
                         id="send-button"
                         class="primary-button full-button">
@@ -233,6 +258,19 @@
                         오늘의 편지
                     </div>
 
+
+                    <!-- 오늘의 마음 (감정 요약이 있을 때만 표시) -->
+                    <p
+                        id="letter-memory"
+                        class="letter-memory hidden">
+                    </p>
+
+
+                    <!-- AI 작성 표시 (항상 표시) -->
+                    <p class="ai-notice">
+                        ※ 이 편지는 AI가 작성했어요.
+                    </p>
+
                 </div>
 
 
@@ -243,6 +281,261 @@
                     다시 일기 쓰기
 
                 </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             마음 기록
+        ========================== -->
+        <section id="memories" class="page">
+
+            <div class="section-container narrow-container">
+
+                <div class="section-title">
+
+                    <p class="eyebrow">
+                        MY HEART LOG
+                    </p>
+
+                    <h2>
+                        나의 마음 기록
+                    </h2>
+
+                    <p>
+                        일기 원문은 저장하지 않고, AI가 만든 감정 요약만 저장해요.
+                    </p>
+
+                </div>
+
+
+                <div class="paper-card">
+
+                    <!-- 불러오는 중 / 오류 안내 -->
+                    <p
+                        id="memories-status"
+                        class="card-status hidden">
+                    </p>
+
+
+                    <!-- 기록이 없을 때 -->
+                    <p
+                        id="memories-empty"
+                        class="memories-empty hidden">
+                        아직 저장된 마음 기록이 없어요.
+                    </p>
+
+
+                    <!-- 기록 목록 (js/app.js에서 채움) -->
+                    <ul
+                        id="memories-list"
+                        class="memories-list">
+                    </ul>
+
+
+                    <!-- 전체 삭제 -->
+                    <div
+                        id="delete-area"
+                        class="delete-area hidden">
+
+                        <button
+                            id="delete-open-button"
+                            class="text-button danger-text"
+                            type="button">
+                            내 기록 전체 삭제
+                        </button>
+
+
+                        <!-- 화면 안의 확인 영역 -->
+                        <div
+                            id="delete-confirm"
+                            class="delete-confirm hidden">
+
+                            <p>
+                                저장된 마음 기록을 모두 삭제할까요?
+                                <br>
+                                삭제한 기록은 되돌릴 수 없고, 다음 편지에도 더 이상 반영되지 않아요.
+                            </p>
+
+                            <div class="confirm-buttons">
+
+                                <button
+                                    id="delete-cancel-button"
+                                    class="small-button"
+                                    type="button">
+                                    취소
+                                </button>
+
+                                <button
+                                    id="delete-confirm-button"
+                                    class="small-button danger-button"
+                                    type="button">
+                                    전체 삭제하기
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- 삭제 결과 안내 -->
+                    <div
+                        id="memories-message"
+                        class="message hidden">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             설정
+        ========================== -->
+        <section id="settings" class="page">
+
+            <div class="section-container narrow-container">
+
+                <div class="section-title">
+
+                    <p class="eyebrow">
+                        SETTINGS
+                    </p>
+
+                    <h2>
+                        설정
+                    </h2>
+
+                    <p>
+                        알림과 감정 기록 저장 여부를 정할 수 있어요.
+                    </p>
+
+                </div>
+
+
+                <div class="paper-card">
+
+                    <!-- 불러오는 중 / 오류 안내 -->
+                    <p
+                        id="settings-status"
+                        class="card-status hidden">
+                    </p>
+
+
+                    <!-- 알림 설정 -->
+                    <h3 class="card-heading">
+                        일기 알림
+                    </h3>
+
+                    <p class="card-description">
+                        설정한 시간에 오늘의 일기를 쓰라는 알림 메일을 보내드려요.
+                        이메일 주소는 알림 발송에만 사용합니다.
+                    </p>
+
+
+                    <div class="form-field">
+
+                        <label for="settings-email">
+                            알림 받을 이메일
+                        </label>
+
+                        <input
+                            type="email"
+                            id="settings-email"
+                            maxlength="254"
+                            placeholder="example@email.com"
+                            autocomplete="email">
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="settings-time">
+                            알림 시간
+                        </label>
+
+                        <input
+                            type="time"
+                            id="settings-time">
+
+                    </div>
+
+
+                    <label
+                        class="toggle-row"
+                        for="settings-notify">
+
+                        <span class="toggle-text">
+                            <strong>알림 받기</strong>
+                            <small>켜 두면 매일 설정한 시간에 메일을 보내드려요.</small>
+                        </span>
+
+                        <input
+                            type="checkbox"
+                            id="settings-notify"
+                            class="toggle-input">
+
+                        <span
+                            class="toggle-switch"
+                            aria-hidden="true">
+                        </span>
+
+                    </label>
+
+
+                    <!-- 기억 기능 설정 -->
+                    <h3 class="card-heading card-heading-gap">
+                        감정 기록 저장
+                    </h3>
+
+
+                    <label
+                        class="toggle-row"
+                        for="settings-memory">
+
+                        <span class="toggle-text">
+                            <strong>감정 기록 저장(기억 기능)</strong>
+                            <small>
+                                일기 원문은 저장하지 않고, AI가 만든 감정 요약만 저장해 다음 편지에 반영해요.
+                                일기 쓰기 화면의 동의 체크와 같은 설정이에요.
+                            </small>
+                        </span>
+
+                        <input
+                            type="checkbox"
+                            id="settings-memory"
+                            class="toggle-input">
+
+                        <span
+                            class="toggle-switch"
+                            aria-hidden="true">
+                        </span>
+
+                    </label>
+
+
+                    <button
+                        id="settings-save-button"
+                        class="primary-button full-button settings-save"
+                        type="button">
+                        설정 저장하기
+                    </button>
+
+
+                    <!-- 저장 결과 안내 -->
+                    <div
+                        id="settings-message"
+                        class="message hidden">
+                    </div>
+
+                </div>
 
             </div>
 
