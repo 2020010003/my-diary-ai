@@ -1,0 +1,5 @@
+# Vercel 배포 설정
+# FastAPI 자동 감지 위치(app.py, index.py, main.py 등)에 api/index.py는 포함되지 않으므로
+# 엔트리포인트를 직접 지정함. 의존성은 requirements.txt에서 관리.
+[tool.vercel]
+entrypoint = "api.index:app"

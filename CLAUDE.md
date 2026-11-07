@@ -8,7 +8,10 @@ Final Project 필수 기술 요소: Long-term Memory(감정 요약 기억) + 자
 - Frontend: 바닐라 HTML / CSS / JavaScript (프레임워크 사용 금지)
 - Backend: FastAPI (api/index.py 의 app), Vercel에 FastAPI 앱으로 배포
   (예전 BaseHTTPRequestHandler 방식은 새 Vercel Python 런타임에서 동작하지 않아 FastAPI로 전환함)
-- AI: Codyssey API (https://copa.codyssey.kr/v1/chat/completions), 모델 gpt-5-mini
+- AI: OpenAI 호환 Chat Completions API ({AI_BASE_URL}/chat/completions, Authorization: Bearer)
+  · 기본: Codyssey (https://copa.codyssey.kr/v1), 모델 gpt-5-mini
+  · 테스트용 대안: Gemini (https://generativelanguage.googleapis.com/v1beta/openai), 모델 예: gemini-3.6-flash
+  · 제공자는 .env의 AI_BASE_URL / AI_API_KEY / AI_MODEL로 선택 (예시는 .env.example)
 - DB: Firebase Firestore (firebase-admin)
 - 자동화: n8n (Schedule Trigger → Vercel API → Gmail)
 - 배포: Vercel
@@ -28,7 +31,10 @@ Final Project 필수 기술 요소: Long-term Memory(감정 요약 기억) + 자
 11. 커밋 전에 git branch로 현재 브랜치가 main이 아닌지 확인할 것.
 
 ## 환경변수
-- CODYSSEY_API_KEY
+- AI_BASE_URL  (기본값: https://copa.codyssey.kr/v1)
+- AI_API_KEY  (없으면 CODYSSEY_API_KEY를 대신 읽음)
+- AI_MODEL  (기본값: gpt-5-mini)
+- CODYSSEY_API_KEY  (예전 이름, AI_API_KEY가 없을 때만 사용)
 - FIREBASE_SERVICE_ACCOUNT  (서비스 계정 JSON 전체를 한 줄 문자열로)
 - CRON_SECRET  (n8n 전용 API 보호용)
 
