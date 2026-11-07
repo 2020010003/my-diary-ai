@@ -5,6 +5,7 @@
                     body: { diary, user_id, memory_consent }
                     응답: { reply, memory(요약 또는 null) }
                     · users/{user_id} 문서가 없으면 만들고, memory_consent로 동의 여부 갱신
+                    · 동의한 사용자는 최근 감정 기록 5개를 시스템 프롬프트에 넣어 편지에 반영
                     · 동의한 사용자만 감정 요약을 memories에 저장 (일기 원문은 저장하지 않음)
 - GET  /          : index.html 제공
 - /css, /js       : 정적 파일 제공 (Vercel에서는 빌드 시 CDN으로 옮겨짐)
@@ -106,6 +107,57 @@ AI_MAX_TOKENS = 4096
 GEMINI_REASONING_EFFORT = "low"
 
 
+MEMORY_PROMPT_HEADER = "아래는 이 사용자의 최근 감정 기록입니다."
+
+MEMORY_PROMPT_RULES = """
+과거 감정 기록 사용 규칙:
+1. 과거 기록은 오늘 일기와 자연스럽게 이어질 때만 한두 번 언급하세요.
+2. 과거 기록을 나열하거나 분석하지 마세요.
+3. 오늘 일기와 관계없으면 언급하지 않아도 됩니다.
+4. 감정 요약("memory")은 과거 기록이 아니라 오늘 일기만 보고 작성하세요.
+"""
+
+
+def format_memory_line(memory: dict):
+    """감정 기록 한 개를 "- 11/05 피곤(3): 과제가 많아 잠을 못 잠" 형식으로. 쓸 수 없으면 None"""
+    date = memory.get("date")
+    emotion = memory.get("emotion")
+    if not isinstance(date, str) or not isinstance(emotion, str):
+        return None
+
+    # "2026-11-05" → "11/05"
+    parts = date.split("-")
+    short_date = f"{parts[1]}/{parts[2]}" if len(parts) == 3 else date
+
+    line = f"- {short_date} {emotion}"
+
+    intensity = memory.get("intensity")
+    if isinstance(intensity, int):
+        line += f"({intensity})"
+
+    situation = memory.get("situation")
+    if isinstance(situation, str) and situation.strip():
+        line += f": {situation.strip()[:30]}"
+
+    return line
+
+
+def build_system_prompt(memories) -> str:
+    """기본 편지 규칙 + (기록이 있을 때만) 최근 감정 기록과 사용 규칙"""
+    lines = [line for line in (format_memory_line(m) for m in memories or []) if line]
+
+    # 기록이 없으면 기억 부분은 넣지 않음
+    if not lines:
+        return SYSTEM_PROMPT
+
+    return (
+        SYSTEM_PROMPT
+        + "\n" + MEMORY_PROMPT_HEADER + "\n"
+        + "\n".join(lines) + "\n"
+        + MEMORY_PROMPT_RULES
+    )
+
+
 def is_gemini(base_url: str) -> bool:
     """AI 주소가 Gemini(OpenAI 호환 API)인지 확인"""
     return "generativelanguage.googleapis.com" in base_url
@@ -127,7 +179,8 @@ def log(message: str) -> None:
         print(f"[ai] {ascii(message)}", flush=True)
 
 
-def call_ai(base_url: str, api_key: str, model: str, diary: str, timeout: float = 25):
+def call_ai(base_url: str, api_key: str, model: str, diary: str, timeout: float = 25,
+            system_prompt: str = SYSTEM_PROMPT):
     """OpenAI 호환 AI API(Codyssey, Gemini 등)에 일기를 보내고 (AI 응답 문자열, 오류응답) 중 하나를 돌려줌"""
 
     # 키 값은 출력하지 않고, 읽혔는지 여부와 길이만 출력
@@ -137,7 +190,7 @@ def call_ai(base_url: str, api_key: str, model: str, diary: str, timeout: float 
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": diary},
         ],
     }
@@ -271,14 +324,17 @@ def parse_ai_reply(text: str):
     return letter.strip(), normalize_memory(data.get("memory"))
 
 
-def get_letter_and_memory(base_url: str, api_key: str, model: str, diary: str):
+def get_letter_and_memory(base_url: str, api_key: str, model: str, diary: str,
+                          system_prompt: str = SYSTEM_PROMPT):
     """
     AI를 호출해 (편지, 감정 요약, 오류응답)을 돌려줌.
+    system_prompt: 기본 규칙 + (있으면) 최근 감정 기록이 들어간 시스템 프롬프트
     JSON 파싱에 실패하면 한 번 더 요청하고, 그래도 실패하면 AI 응답 전체를 편지로 쓰고 요약은 None.
     """
     started = time.monotonic()
 
-    raw, error = call_ai(base_url, api_key, model, diary, timeout=AI_TOTAL_BUDGET)
+    raw, error = call_ai(base_url, api_key, model, diary, timeout=AI_TOTAL_BUDGET,
+                         system_prompt=system_prompt)
     if error is not None:
         return None, None, error
 
@@ -290,7 +346,8 @@ def get_letter_and_memory(base_url: str, api_key: str, model: str, diary: str):
     remaining = AI_TOTAL_BUDGET - (time.monotonic() - started)
     if remaining >= AI_RETRY_MIN_TIME:
         log("JSON 파싱 실패 → 한 번 더 요청")
-        retry_raw, retry_error = call_ai(base_url, api_key, model, diary, timeout=remaining)
+        retry_raw, retry_error = call_ai(base_url, api_key, model, diary, timeout=remaining,
+                                         system_prompt=system_prompt)
 
         if retry_error is None:
             raw = retry_raw
@@ -350,9 +407,18 @@ async def create_letter(request: Request):
     except Exception as exc:
         log(f"기억 기능 건너뜀: {type(exc).__name__}")
 
+    # 최근 감정 기록 불러오기 (memory_enabled=true일 때만, 오늘 일기 저장 전이므로 오늘 것은 포함 안 됨)
+    try:
+        recent_memories = await run_in_threadpool(memory_store.load_recent_memories, user_id)
+    except Exception as exc:
+        log(f"기억 불러오기 건너뜀: {type(exc).__name__}")
+        recent_memories = []
+
+    system_prompt = build_system_prompt(recent_memories)
+
     # requests는 동기 라이브러리이므로 별도 스레드에서 실행
     reply, memory, error = await run_in_threadpool(
-        get_letter_and_memory, base_url, api_key, model, diary
+        get_letter_and_memory, base_url, api_key, model, diary, system_prompt
     )
 
     if error is not None:

@@ -140,6 +140,56 @@ def prepare_user(user_id: str, memory_consent: bool) -> None:
         _log(f"동의 여부 갱신 실패: {type(exc).__name__}: {str(exc)[:200]}")
 
 
+def load_recent_memories(user_id: str, limit: int = 5) -> list:
+    """
+    memory_enabled가 true인 사용자의 최근 감정 기록을 최대 limit개 가져옴.
+    created_at 내림차순으로 가져온 뒤, 오래된 것부터 날짜순으로 돌려줌.
+    실패하거나 사용할 수 없으면 빈 목록. (로그에는 개수만 출력)
+    """
+    if not is_valid_user_id(user_id):
+        return []
+
+    db = get_db()
+    if db is None:
+        return []
+
+    try:
+        from firebase_admin import firestore
+
+        user_ref = db.collection("users").document(user_id)
+        snapshot = user_ref.get()
+
+        user_data = snapshot.to_dict() if snapshot.exists else None
+        if not user_data or user_data.get("memory_enabled") is not True:
+            return []
+
+        docs = (
+            user_ref.collection("memories")
+            .order_by("created_at", direction=firestore.Query.DESCENDING)
+            .limit(limit)
+            .stream()
+        )
+
+        memories = []
+        for doc in docs:
+            item = doc.to_dict() or {}
+            memories.append({
+                "date": item.get("date"),
+                "emotion": item.get("emotion"),
+                "intensity": item.get("intensity"),
+                "situation": item.get("situation"),
+            })
+
+        # 오래된 것부터 날짜순
+        memories.reverse()
+
+        _log(f"불러온 기억 개수: {len(memories)}")
+        return memories
+    except Exception as exc:
+        _log(f"기억 불러오기 실패: {type(exc).__name__}: {str(exc)[:200]}")
+        return []
+
+
 def save_memory(user_id: str, memory: dict) -> None:
     """memory_enabled가 true인 사용자만 users/{user_id}/memories에 감정 요약 저장"""
     if not is_valid_user_id(user_id) or not isinstance(memory, dict):
