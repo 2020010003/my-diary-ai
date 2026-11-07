@@ -27,8 +27,8 @@ Final Project 필수 기술 요소: Long-term Memory(감정 요약 기억) + 자
 7. 한 번에 요청받은 범위만 수정하고, 관계없는 파일은 건드리지 말 것.
 8. 수정이 끝나면 바뀐 파일 목록과 직접 테스트하는 방법을 알려줄 것.
 9. 사용자에게 보이는 문구는 한국어, 코드 주석도 한국어.
-10. 팀 프로젝트임. main 브랜치에 직접 커밋·push 하지 말 것. vercel --prod 실행 금지.
-11. 커밋 전에 git branch로 현재 브랜치가 main이 아닌지 확인할 것.
+10. 팀 프로젝트임. master 브랜치에 직접 커밋·push 하지 말 것. vercel --prod 실행 금지.
+11. 커밋 전에 git branch로 현재 브랜치가 master가 아닌지 확인할 것.
 
 ## 환경변수
 - AI_BASE_URL  (기본값: https://copa.codyssey.kr/v1)
