@@ -41,6 +41,74 @@ const aiResponse =
 
 
 // ========================================
+// 사용자 구분 (로그인 없음)
+// 처음 방문 시 user_id를 만들어 localStorage에 저장하고,
+// 모든 API 요청 body에 같이 보냄
+// ========================================
+
+const USER_ID_KEY = "diary_user_id";
+
+// UUID 만들기 (crypto.randomUUID가 없는 환경 대비)
+function createUuid() {
+
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+
+        return window.crypto.randomUUID();
+
+    }
+
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+
+    // UUID v4 형식 맞추기
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    const hex = Array.from(bytes, (b) =>
+        b.toString(16).padStart(2, "0")
+    ).join("");
+
+    return (
+        hex.slice(0, 8) + "-" +
+        hex.slice(8, 12) + "-" +
+        hex.slice(12, 16) + "-" +
+        hex.slice(16, 20) + "-" +
+        hex.slice(20)
+    );
+
+}
+
+// 저장된 user_id를 읽고, 없으면 새로 만들어 저장
+// localStorage를 쓸 수 없으면 이 페이지에서만 쓰는 임시 ID 사용
+function loadUserId() {
+
+    try {
+
+        const saved = window.localStorage.getItem(USER_ID_KEY);
+
+        if (saved) {
+
+            return saved;
+
+        }
+
+        const newId = createUuid();
+        window.localStorage.setItem(USER_ID_KEY, newId);
+
+        return newId;
+
+    } catch (error) {
+
+        return createUuid();
+
+    }
+
+}
+
+const userId = loadUserId();
+
+
+// ========================================
 // 페이지 이동 함수
 // ========================================
 
@@ -293,7 +361,8 @@ async function requestAiLetter(diary) {
                     },
 
                     body: JSON.stringify({
-                        diary: diary
+                        diary: diary,
+                        user_id: userId
                     }),
 
                     signal:

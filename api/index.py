@@ -2,6 +2,7 @@
 오늘의 편지 - FastAPI 백엔드
 
 - POST /api/diary : 일기를 받아 AI(Codyssey 또는 Gemini) 답장을 돌려줌
+                    (body의 user_id로 Firestore users/{user_id} 문서를 없으면 만들어 둠)
 - GET  /          : index.html 제공
 - /css, /js       : 정적 파일 제공 (Vercel에서는 빌드 시 CDN으로 옮겨짐)
 
@@ -17,6 +18,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
+
+# Firestore(기억 기능) 모듈
+# uvicorn api.index:app / Vercel(entrypoint api.index:app)에서는 api.memory_store로,
+# api 폴더 안에서 직접 실행할 때는 memory_store로 import
+try:
+    from api import memory_store
+except ImportError:
+    import memory_store
 
 
 # ==============================
@@ -162,6 +171,13 @@ async def create_letter(request: Request):
 
     if not diary:
         return error_response(400, "일기 내용을 입력해주세요.")
+
+    # 사용자 문서 준비 (Firestore가 없거나 실패해도 편지는 계속 진행)
+    user_id = data.get("user_id")
+    try:
+        await run_in_threadpool(memory_store.ensure_user, user_id)
+    except Exception as exc:
+        log(f"기억 기능 건너뜀: {type(exc).__name__}")
 
     # requests는 동기 라이브러리이므로 별도 스레드에서 실행
     reply, error = await run_in_threadpool(call_ai, base_url, api_key, model, diary)
