@@ -148,6 +148,29 @@
                     </div>
 
 
+                    <!-- 감정 기록 저장 동의 -->
+                    <div class="consent-box">
+
+                        <label
+                            for="memory-consent"
+                            class="consent-label">
+
+                            <input
+                                type="checkbox"
+                                id="memory-consent">
+
+                            <span>감정 기록 저장에 동의합니다</span>
+
+                        </label>
+
+                        <p class="consent-description">
+                            일기 원문은 저장하지 않고, AI가 만든 감정 요약(감정, 강도, 한 줄 상황)만 저장해
+                            다음 편지에 반영합니다. 작성한 일기는 답장 생성을 위해 외부 AI 서비스로 전송됩니다.
+                        </p>
+
+                    </div>
+
+
                     <button
                         id="send-button"
                         class="primary-button full-button">
@@ -232,6 +255,19 @@
                         From.<br>
                         오늘의 편지
                     </div>
+
+
+                    <!-- 오늘의 마음 (감정 요약이 있을 때만 표시) -->
+                    <p
+                        id="letter-memory"
+                        class="letter-memory hidden">
+                    </p>
+
+
+                    <!-- AI 작성 표시 (항상 표시) -->
+                    <p class="ai-notice">
+                        ※ 이 편지는 AI가 작성했어요.
+                    </p>
 
                 </div>
 

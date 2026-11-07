@@ -39,6 +39,52 @@ const errorMessage =
 const aiResponse =
     document.getElementById("ai-response");
 
+const letterMemory =
+    document.getElementById("letter-memory");
+
+
+// ========================================
+// 감정 기록 저장 동의 체크박스
+// 체크 상태를 localStorage에 기억해서 다음 방문 때도 유지
+// ========================================
+
+const memoryConsent =
+    document.getElementById("memory-consent");
+
+const CONSENT_KEY = "diary_memory_consent";
+
+try {
+
+    memoryConsent.checked =
+        window.localStorage.getItem(CONSENT_KEY) === "true";
+
+} catch (error) {
+
+    // localStorage를 쓸 수 없으면 체크 해제 상태로 시작
+    memoryConsent.checked = false;
+
+}
+
+memoryConsent.addEventListener(
+    "change",
+    () => {
+
+        try {
+
+            window.localStorage.setItem(
+                CONSENT_KEY,
+                memoryConsent.checked ? "true" : "false"
+            );
+
+        } catch (error) {
+
+            // 저장 실패 시 이번 페이지에서만 유지
+
+        }
+
+    }
+);
+
 
 // ========================================
 // 사용자 구분 (로그인 없음)
@@ -113,6 +159,22 @@ const userId = loadUserId();
 // ========================================
 
 function showPage(pageName) {
+
+    // 받은 편지가 없는데 편지 화면을 열면 (새로고침, #letter 주소 직접 입력 등)
+    // 빈 편지 대신 일기 쓰기 화면과 안내 문구를 보여줌
+    if (
+        pageName === "letter" &&
+        !aiResponse.textContent.trim()
+    ) {
+
+        pageName = "write";
+
+        showError(
+            "아직 받은 편지가 없어요. 일기를 쓰고 답장을 받아보세요."
+        );
+
+    }
+
 
     // 모든 페이지 숨기기
     pages.forEach((page) => {
@@ -328,6 +390,32 @@ function setLoading(isLoading) {
 // Python API에 일기 보내기
 // ========================================
 
+// 편지 아래에 "오늘의 마음: 불안 · 학교 발표를 앞두고 긴장함" 표시
+function showMemory(memory) {
+
+    if (!memory || !memory.emotion) {
+
+        letterMemory.textContent = "";
+        letterMemory.classList.add("hidden");
+
+        return;
+
+    }
+
+    let text = "오늘의 마음: " + memory.emotion;
+
+    if (memory.situation) {
+
+        text += " · " + memory.situation;
+
+    }
+
+    letterMemory.textContent = text;
+    letterMemory.classList.remove("hidden");
+
+}
+
+
 async function requestAiLetter(diary) {
 
 
@@ -362,7 +450,8 @@ async function requestAiLetter(diary) {
 
                     body: JSON.stringify({
                         diary: diary,
-                        user_id: userId
+                        user_id: userId,
+                        memory_consent: memoryConsent.checked
                     }),
 
                     signal:
@@ -403,18 +492,24 @@ async function requestAiLetter(diary) {
         }
 
 
-        // AI 답장이 없는 경우
-        if (!data.reply) {
+        // AI 답장이 없거나 비어 있는 경우 (빈 편지를 보여주지 않음)
+        if (
+            typeof data.reply !== "string" ||
+            !data.reply.trim()
+        ) {
 
             throw new Error(
-                "AI 답장을 받지 못했습니다."
+                "AI가 빈 답장을 보냈어요. 잠시 후 다시 시도해주세요."
             );
 
         }
 
 
-        // AI 답장 반환
-        return data.reply;
+        // AI 답장 + 감정 요약(없으면 null) 반환
+        return {
+            reply: data.reply,
+            memory: data.memory || null
+        };
 
 
     }
@@ -516,7 +611,7 @@ sendButton.addEventListener(
 
 
             // Python API에 일기 전송
-            const reply =
+            const result =
                 await requestAiLetter(
                     diary
                 );
@@ -524,7 +619,11 @@ sendButton.addEventListener(
 
             // AI 답장 화면에 표시
             aiResponse.textContent =
-                reply;
+                result.reply;
+
+
+            // 오늘의 마음 표시 (감정 요약이 있을 때만)
+            showMemory(result.memory);
 
 
             // 편지 페이지로 이동

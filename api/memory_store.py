@@ -5,8 +5,8 @@
 users/{user_id}
   - created_at, email, notify_time("HH:MM"), notify_enabled,
     memory_enabled, last_notified_date, consent_at
-  - memories/{auto_id}: date, emotion, intensity, situation, keywords, created_at
-    (memories는 다음 단계에서 저장. 일기 원문은 저장하지 않음)
+  - memories/{auto_id}: date(한국 시간 YYYY-MM-DD), emotion, intensity, situation, keywords, created_at
+    (memory_enabled가 true인 사용자만 저장. 일기 원문은 절대 저장하지 않음)
 
 환경변수 FIREBASE_SERVICE_ACCOUNT(서비스 계정 JSON 한 줄 문자열)가 없거나 잘못되면
 기억 기능만 건너뛰고, 편지 기능에는 영향을 주지 않음.
@@ -16,6 +16,10 @@ import json
 import os
 import re
 import threading
+from datetime import datetime, timedelta, timezone
+
+# 한국 시간 (Windows에는 tzdata가 없을 수 있어 ZoneInfo 대신 고정 오프셋 사용)
+KST = timezone(timedelta(hours=9))
 
 # 초기화 결과 캐시 (None: 아직 시도 안 함, False: 사용 불가, 그 외: Firestore 클라이언트)
 _db = None
@@ -77,15 +81,18 @@ def get_db():
     return _db or None
 
 
-def ensure_user(user_id: str) -> None:
-    """users/{user_id} 문서가 없으면 기본값으로 만들어 둠. 실패해도 예외를 밖으로 내보내지 않음"""
+def ensure_user(user_id: str) -> bool:
+    """
+    users/{user_id} 문서가 없으면 기본값으로 만들어 둠.
+    문서를 쓸 수 있는 상태면 True. 실패해도 예외를 밖으로 내보내지 않음
+    """
     if not is_valid_user_id(user_id):
         _log("user_id 형식이 올바르지 않음 → 사용자 문서 생성을 건너뜁니다.")
-        return
+        return False
 
     db = get_db()
     if db is None:
-        return
+        return False
 
     try:
         from firebase_admin import firestore
@@ -106,5 +113,61 @@ def ensure_user(user_id: str) -> None:
             _log("새 사용자 문서 생성")
         except AlreadyExists:
             pass
+        return True
     except Exception as exc:
         _log(f"사용자 문서 처리 실패: {type(exc).__name__}: {str(exc)[:200]}")
+        return False
+
+
+def prepare_user(user_id: str, memory_consent: bool) -> None:
+    """
+    사용자 문서를 준비하고 동의 여부를 갱신.
+    동의: memory_enabled=true, consent_at=현재시각 / 미동의: memory_enabled=false
+    """
+    if not ensure_user(user_id):
+        return
+
+    try:
+        from firebase_admin import firestore
+
+        if memory_consent:
+            changes = {"memory_enabled": True, "consent_at": firestore.SERVER_TIMESTAMP}
+        else:
+            changes = {"memory_enabled": False}
+
+        get_db().collection("users").document(user_id).update(changes)
+    except Exception as exc:
+        _log(f"동의 여부 갱신 실패: {type(exc).__name__}: {str(exc)[:200]}")
+
+
+def save_memory(user_id: str, memory: dict) -> None:
+    """memory_enabled가 true인 사용자만 users/{user_id}/memories에 감정 요약 저장"""
+    if not is_valid_user_id(user_id) or not isinstance(memory, dict):
+        return
+
+    db = get_db()
+    if db is None:
+        return
+
+    try:
+        from firebase_admin import firestore
+
+        user_ref = db.collection("users").document(user_id)
+        snapshot = user_ref.get()
+
+        user_data = snapshot.to_dict() if snapshot.exists else None
+        if not user_data or user_data.get("memory_enabled") is not True:
+            return
+
+        # 정해진 필드만 저장 (일기 원문은 받지도, 저장하지도 않음)
+        user_ref.collection("memories").add({
+            "date": datetime.now(KST).strftime("%Y-%m-%d"),
+            "emotion": memory.get("emotion"),
+            "intensity": memory.get("intensity"),
+            "situation": memory.get("situation"),
+            "keywords": memory.get("keywords") or [],
+            "created_at": firestore.SERVER_TIMESTAMP,
+        })
+        _log("감정 요약 저장")
+    except Exception as exc:
+        _log(f"감정 요약 저장 실패: {type(exc).__name__}: {str(exc)[:200]}")
