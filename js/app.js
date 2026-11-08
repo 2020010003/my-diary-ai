@@ -3,6 +3,11 @@
     Frontend JavaScript
 */
 
+// ========================================
+// 구글 앱스 스크립트 웹 앱 URL
+// ========================================
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymV2J8YMBL8O375s0mtPP190U3iwadDx99jwNzJvaCY7t-r0ZqxteJoHCzYi5ARi0/exec";
+
 
 // ========================================
 // 페이지 요소 가져오기
@@ -931,6 +936,7 @@ async function loadSettings() {
 
         settingsStatus.classList.add("hidden");
 
+        // 초기 로딩 오류는 화면상 단순 표시용
         showCardMessage(
             settingsMessage,
             "error",
@@ -1000,16 +1006,23 @@ settingsSaveButton.addEventListener(
 
         try {
 
-            await apiRequest(
-                "POST",
-                "/api/settings",
-                {
-                    email: email,
-                    notify_time: notifyTime,
-                    notify_enabled: notifyEnabled,
-                    memory_enabled: settingsMemory.checked
-                }
-            );
+            // 구글 시트 웹 앱으로 설정 데이터 보내기
+            const payload = {
+                user_id: userId,
+                email: email,
+                alarm_time: notifyTime,
+                enabled: notifyEnabled,
+                timezone: "Asia/Seoul"
+            };
+
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8",
+                },
+                body: JSON.stringify(payload)
+            });
 
             // 저장 성공 시 일기 쓰기 화면의 동의 체크도 같은 값으로
             setMemoryConsent(settingsMemory.checked);
@@ -1025,7 +1038,7 @@ settingsSaveButton.addEventListener(
             showCardMessage(
                 settingsMessage,
                 "error",
-                error.message
+                "저장 중 오류가 발생했어요."
             );
 
         } finally {
