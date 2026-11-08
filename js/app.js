@@ -6,6 +6,7 @@
 // ========================================
 // 구글 앱스 스크립트 웹 앱 URL
 // ========================================
+// 팀원 Apps Script 웹 앱 주소, n8n 알림용
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymV2J8YMBL8O375s0mtPP190U3iwadDx99jwNzJvaCY7t-r0ZqxteJoHCzYi5ARi0/exec";
 
 
@@ -1006,7 +1007,23 @@ settingsSaveButton.addEventListener(
 
         try {
 
-            // 구글 시트 웹 앱으로 설정 데이터 보내기
+            // 1) Firestore 저장 (설정 화면 불러오기와 기억 기능이 이 값을 사용)
+            const firestoreSave = apiRequest(
+                "POST",
+                "/api/settings",
+                {
+                    email: email,
+                    notify_time: notifyTime,
+                    notify_enabled: notifyEnabled,
+                    memory_enabled: settingsMemory.checked
+                }
+            ).then(
+                () => ({ ok: true }),
+                (error) => ({ ok: false, error: error })
+            );
+
+            // 2) 구글 시트 웹 앱으로 설정 데이터 보내기 (n8n 알림용)
+            // no-cors라 응답 내용은 확인할 수 없고, 네트워크 오류만 잡을 수 있음
             const payload = {
                 user_id: userId,
                 email: email,
@@ -1015,22 +1032,53 @@ settingsSaveButton.addEventListener(
                 timezone: "Asia/Seoul"
             };
 
-            await fetch(GOOGLE_SCRIPT_URL, {
+            const sheetSave = fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: {
                     "Content-Type": "text/plain;charset=utf-8",
                 },
                 body: JSON.stringify(payload)
-            });
+            }).then(
+                () => ({ ok: true }),
+                () => ({ ok: false })
+            );
 
-            // 저장 성공 시 일기 쓰기 화면의 동의 체크도 같은 값으로
-            setMemoryConsent(settingsMemory.checked);
+            // 두 저장을 동시에 진행하고, 한쪽이 실패해도 다른 쪽은 끝까지 진행
+            const [firestoreResult, sheetResult] =
+                await Promise.all([firestoreSave, sheetSave]);
+
+            const messages = [];
+
+            if (firestoreResult.ok) {
+
+                // 저장 성공 시 일기 쓰기 화면의 동의 체크도 같은 값으로
+                setMemoryConsent(settingsMemory.checked);
+
+                messages.push("설정을 저장했어요.");
+
+            } else {
+
+                messages.push(
+                    firestoreResult.error && firestoreResult.error.message
+                        ? firestoreResult.error.message
+                        : "저장 중 오류가 발생했어요."
+                );
+
+            }
+
+            if (!sheetResult.ok) {
+
+                messages.push(
+                    "알림 설정 동기화에 실패했어요. 잠시 후 다시 저장해 주세요."
+                );
+
+            }
 
             showCardMessage(
                 settingsMessage,
-                "success",
-                "설정을 저장했어요."
+                firestoreResult.ok && sheetResult.ok ? "success" : "error",
+                messages.join(" ")
             );
 
         } catch (error) {
