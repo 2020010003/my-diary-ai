@@ -1,0 +1,21 @@
+# Vercel 배포 설정
+#
+# 주의: Vercel은 pyproject.toml이 있으면 requirements.txt를 읽지 않고
+#       아래 [project].dependencies만 설치함.
+#       패키지를 추가·변경할 때는 requirements.txt(로컬 pip용)와 이 파일을 함께 수정할 것.
+
+[project]
+name = "my-diary-ai"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "requests==2.32.5",
+    "python-dotenv==1.1.1",
+    "fastapi==0.120.4",
+    "uvicorn==0.38.0",
+    "firebase-admin==7.7.0",
+]
+
+# FastAPI 앱 위치 (api/index.py 의 app)
+[tool.vercel]
+entrypoint = "api.index:app"

@@ -1,248 +1,728 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>오늘의 편지</title>
-    <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- 화면 전환 보장용 최소 CSS -->
-    <style>
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-    <header class="site-header">
-        <div class="logo" data-page="home">오늘의 편지</div>
 
-        <nav class="nav">
-            <button type="button" data-page="home">홈</button>
-            <button type="button" data-page="write">일기 쓰기</button>
-            <button type="button" data-page="about">서비스 소개</button>
-        </nav>
+    <!-- 상단 메뉴 -->
+    <header class="site-header">
+        <div class="header-inner">
+
+            <a href="#home" class="logo" data-page="home">
+                오늘의 편지
+            </a>
+
+            <nav class="nav">
+                <a href="#home" data-page="home">홈</a>
+                <a href="#write" data-page="write">일기 쓰기</a>
+                <a href="#memories" data-page="memories">마음 기록</a>
+                <a href="#settings" data-page="settings">설정</a>
+                <a href="#about" data-page="about">서비스 소개</a>
+            </nav>
+
+        </div>
     </header>
 
+
     <main>
-        <!-- 홈 화면 -->
+
+        <!-- =========================
+             홈
+        ========================== -->
         <section id="home" class="page active">
+
             <div class="hero">
-                <div class="envelope">
-                    <div class="envelope-flap"></div>
-                    <div class="envelope-paper">
-                        <p>오늘도 수고했어요.</p>
+
+                <div class="hero-content">
+
+                    <p class="eyebrow">
+                        TODAY'S LETTER
+                    </p>
+
+                    <h1>
+                        오늘 하루,<br>
+                        마음을 편지로 받아보세요.
+                    </h1>
+
+                    <p class="hero-description">
+                        오늘 있었던 일을 자유롭게 적어주세요.
+                        <br>
+                        AI가 당신의 이야기를 읽고 따뜻한 답장을 보내드립니다.
+                    </p>
+
+                    <button
+                        class="primary-button"
+                        data-page="write">
+                        오늘의 일기 쓰기
+                    </button>
+
+                </div>
+
+
+                <!-- 편지 이미지 영역 -->
+                <div class="hero-letter">
+
+                    <div class="letter-envelope">
+
+                        <div class="envelope-flap"></div>
+
+                        <div class="letter-paper">
+
+                            <span class="letter-small">
+                                Dear. 오늘의 나에게
+                            </span>
+
+                            <span class="letter-heart">
+                                ♡
+                            </span>
+
+                            <span class="letter-small">
+                                오늘도 정말 수고했어요.
+                            </span>
+
+                        </div>
+
                     </div>
+
                 </div>
 
-                <p class="eyebrow">TODAY'S LETTER</p>
-
-                <h1>
-                    오늘의 하루,<br />
-                    편지처럼 따뜻하게 기록<br />
-                    해보세요.
-                </h1>
-
-                <p class="description">
-                    오늘 있었던 일들을 일기로 남겨보세요.<br />
-                    AI가 따뜻한 답장을 보내 당신의 하루를 더 특별하게 만들어드려요.
-                </p>
-
-                <button type="button" class="primary-button" data-page="write">
-                    오늘의 일기 쓰러 가기
-                </button>
             </div>
+
         </section>
 
-        <!-- 일기 쓰기 화면 -->
+
+        <!-- =========================
+             일기 작성
+        ========================== -->
         <section id="write" class="page">
-            <div class="content-card">
-                <p class="eyebrow">WRITE YOUR DAY</p>
 
-                <h2>오늘 하루는 어땠나요?</h2>
+            <div class="section-container">
 
-                <p class="sub-text">
-                    좋았던 일, 힘들었던 일, 마음에 남은 생각을 편하게 적어주세요.
-                </p>
+                <div class="section-title">
 
-                <form id="diaryForm">
+                    <p class="eyebrow">
+                        WRITE YOUR STORY
+                    </p>
+
+                    <h2>
+                        오늘 하루는 어땠나요?
+                    </h2>
+
+                    <p>
+                        잘한 일도, 힘들었던 일도,
+                        아무 의미 없는 이야기라도 괜찮아요.
+                    </p>
+
+                </div>
+
+
+                <div class="diary-card">
+
+                    <label for="diary">
+                        오늘의 이야기
+                    </label>
+
+
                     <textarea
-                        id="diaryInput"
-                        placeholder="예: 오늘은 조금 지쳤지만, 친구와 나눈 대화가 위로가 되었어요."
-                        required
-                    ></textarea>
+                        id="diary"
+                        maxlength="3000"
+                        placeholder="오늘 있었던 일을 편하게 적어주세요.
 
-                    <p id="errorMessage" class="error-message hidden"></p>
+예를 들면,
+오늘은 학교에서 발표를 했다.
+많이 긴장했지만 생각보다 잘 끝나서 다행이었다.
+그런데 친구와 조금 다투어서 마음이 좋지 않았다."></textarea>
 
-                    <button id="sendButton" type="submit" class="primary-button">
-                        <span id="buttonText">AI에게 편지 받기</span>
+
+                    <div class="input-info">
+
+                        <span id="char-count">
+                            0 / 3000
+                        </span>
+
+                    </div>
+
+
+                    <!-- 감정 기록 저장 동의 -->
+                    <div class="consent-box">
+
+                        <label
+                            for="memory-consent"
+                            class="consent-label">
+
+                            <input
+                                type="checkbox"
+                                id="memory-consent">
+
+                            <span>감정 기록 저장에 동의합니다</span>
+
+                        </label>
+
+                        <p class="consent-description">
+                            일기 원문은 저장하지 않고, AI가 만든 감정 요약(감정, 강도, 한 줄 상황)만 저장해
+                            다음 편지에 반영합니다. 작성한 일기는 답장 생성을 위해 외부 AI 서비스로 전송됩니다.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="send-button"
+                        class="primary-button full-button">
+
+                        <span id="button-text">
+                            AI에게 답장 받기
+                        </span>
+
+                        <span
+                            id="loading-spinner"
+                            class="spinner hidden">
+                        </span>
+
                     </button>
-                </form>
 
-                <button type="button" class="text-button" data-page="home">
-                    홈으로 돌아가기
-                </button>
+
+                    <!-- 오류 메시지 -->
+                    <div
+                        id="error-message"
+                        class="message error hidden">
+                    </div>
+
+                </div>
+
             </div>
+
         </section>
 
-        <!-- 답장 화면 -->
+
+        <!-- =========================
+             AI 답장
+        ========================== -->
         <section id="letter" class="page">
-            <div class="content-card letter-card">
-                <p class="eyebrow">LETTER FOR YOU</p>
 
-                <h2>당신에게 도착한 편지</h2>
+            <div class="section-container letter-container">
 
-                <div class="result-section">
-                    <p id="replyOutput">아직 도착한 편지가 없어요.</p>
+                <div class="section-title">
+
+                    <p class="eyebrow">
+                        YOUR LETTER
+                    </p>
+
+                    <h2>
+                        당신에게 도착한 편지
+                    </h2>
+
+                    <p>
+                        오늘의 이야기를 읽은 AI가
+                        답장을 보내왔어요.
+                    </p>
+
                 </div>
 
-                <div class="button-row">
-                    <button type="button" class="primary-button" data-page="write">
-                        다시 일기 쓰기
-                    </button>
 
-                    <button type="button" class="secondary-button" data-page="home">
-                        홈으로 가기
-                    </button>
+                <div
+                    id="letter-card"
+                    class="ai-letter-card">
+
+                    <div class="letter-decoration">
+                        ♡
+                    </div>
+
+
+                    <p class="letter-greeting">
+                        Dear. 오늘의 당신에게
+                    </p>
+
+
+                    <!-- AI 답장이 여기에 표시됩니다 -->
+                    <div
+                        id="ai-response"
+                        class="ai-response">
+                    </div>
+
+
+                    <p class="letter-ending">
+                        오늘도 당신의 하루를 응원할게요.
+                    </p>
+
+
+                    <div class="letter-signature">
+                        From.<br>
+                        오늘의 편지
+                    </div>
+
+
+                    <!-- 오늘의 마음 (감정 요약이 있을 때만 표시) -->
+                    <p
+                        id="letter-memory"
+                        class="letter-memory hidden">
+                    </p>
+
+
+                    <!-- AI 작성 표시 (항상 표시) -->
+                    <p class="ai-notice">
+                        ※ 이 편지는 AI가 작성했어요.
+                    </p>
+
                 </div>
-            </div>
-        </section>
 
-        <!-- 서비스 소개 화면 -->
-        <section id="about" class="page">
-            <div class="content-card">
-                <p class="eyebrow">ABOUT SERVICE</p>
 
-                <h2>오늘의 편지는 이런 서비스예요</h2>
+                <button
+                    class="secondary-button"
+                    data-page="write">
 
-                <p class="sub-text">
-                    오늘의 편지는 하루를 기록하면 AI가 따뜻한 편지 형식으로 답장을 보내주는
-                    감성 일기 서비스입니다.
-                </p>
+                    다시 일기 쓰기
 
-                <button type="button" class="primary-button" data-page="write">
-                    일기 쓰러 가기
                 </button>
+
             </div>
+
         </section>
+
+
+        <!-- =========================
+             마음 기록
+        ========================== -->
+        <section id="memories" class="page">
+
+            <div class="section-container narrow-container">
+
+                <div class="section-title">
+
+                    <p class="eyebrow">
+                        MY HEART LOG
+                    </p>
+
+                    <h2>
+                        나의 마음 기록
+                    </h2>
+
+                    <p>
+                        일기 원문은 저장하지 않고, AI가 만든 감정 요약만 저장해요.
+                    </p>
+
+                </div>
+
+
+                <div class="paper-card">
+
+                    <!-- 불러오는 중 / 오류 안내 -->
+                    <p
+                        id="memories-status"
+                        class="card-status hidden">
+                    </p>
+
+
+                    <!-- 기록이 없을 때 -->
+                    <p
+                        id="memories-empty"
+                        class="memories-empty hidden">
+                        아직 저장된 마음 기록이 없어요.
+                    </p>
+
+
+                    <!-- 기록 목록 (js/app.js에서 채움) -->
+                    <ul
+                        id="memories-list"
+                        class="memories-list">
+                    </ul>
+
+
+                    <!-- 전체 삭제 -->
+                    <div
+                        id="delete-area"
+                        class="delete-area hidden">
+
+                        <button
+                            id="delete-open-button"
+                            class="text-button danger-text"
+                            type="button">
+                            내 기록 전체 삭제
+                        </button>
+
+
+                        <!-- 화면 안의 확인 영역 -->
+                        <div
+                            id="delete-confirm"
+                            class="delete-confirm hidden">
+
+                            <p>
+                                저장된 마음 기록을 모두 삭제할까요?
+                                <br>
+                                삭제한 기록은 되돌릴 수 없고, 다음 편지에도 더 이상 반영되지 않아요.
+                            </p>
+
+                            <div class="confirm-buttons">
+
+                                <button
+                                    id="delete-cancel-button"
+                                    class="small-button"
+                                    type="button">
+                                    취소
+                                </button>
+
+                                <button
+                                    id="delete-confirm-button"
+                                    class="small-button danger-button"
+                                    type="button">
+                                    전체 삭제하기
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- 삭제 결과 안내 -->
+                    <div
+                        id="memories-message"
+                        class="message hidden">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             설정
+        ========================== -->
+        <section id="settings" class="page">
+
+            <div class="section-container narrow-container">
+
+                <div class="section-title">
+
+                    <p class="eyebrow">
+                        SETTINGS
+                    </p>
+
+                    <h2>
+                        설정
+                    </h2>
+
+                    <p>
+                        알림과 감정 기록 저장 여부를 정할 수 있어요.
+                    </p>
+
+                </div>
+
+
+                <div class="paper-card">
+
+                    <!-- 불러오는 중 / 오류 안내 -->
+                    <p
+                        id="settings-status"
+                        class="card-status hidden">
+                    </p>
+
+
+                    <!-- 알림 설정 -->
+                    <h3 class="card-heading">
+                        일기 알림
+                    </h3>
+
+                    <p class="card-description">
+                        설정한 시간에 오늘의 일기를 쓰라는 알림 메일을 보내드려요.
+                        이메일 주소는 알림 발송에만 사용합니다.
+                    </p>
+
+
+                    <div class="form-field">
+
+                        <label for="settings-email">
+                            알림 받을 이메일
+                        </label>
+
+                        <input
+                            type="email"
+                            id="settings-email"
+                            maxlength="254"
+                            placeholder="example@email.com"
+                            autocomplete="email">
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="settings-time">
+                            알림 시간
+                        </label>
+
+                        <input
+                            type="time"
+                            id="settings-time">
+
+                    </div>
+
+
+                    <label
+                        class="toggle-row"
+                        for="settings-notify">
+
+                        <span class="toggle-text">
+                            <strong>알림 받기</strong>
+                            <small>켜 두면 매일 설정한 시간에 메일을 보내드려요.</small>
+                        </span>
+
+                        <input
+                            type="checkbox"
+                            id="settings-notify"
+                            class="toggle-input">
+
+                        <span
+                            class="toggle-switch"
+                            aria-hidden="true">
+                        </span>
+
+                    </label>
+
+
+                    <!-- 기억 기능 설정 -->
+                    <h3 class="card-heading card-heading-gap">
+                        감정 기록 저장
+                    </h3>
+
+
+                    <label
+                        class="toggle-row"
+                        for="settings-memory">
+
+                        <span class="toggle-text">
+                            <strong>감정 기록 저장(기억 기능)</strong>
+                            <small>
+                                일기 원문은 저장하지 않고, AI가 만든 감정 요약만 저장해 다음 편지에 반영해요.
+                                일기 쓰기 화면의 동의 체크와 같은 설정이에요.
+                            </small>
+                        </span>
+
+                        <input
+                            type="checkbox"
+                            id="settings-memory"
+                            class="toggle-input">
+
+                        <span
+                            class="toggle-switch"
+                            aria-hidden="true">
+                        </span>
+
+                    </label>
+
+
+                    <button
+                        id="settings-save-button"
+                        class="primary-button full-button settings-save"
+                        type="button">
+                        설정 저장하기
+                    </button>
+
+
+                    <!-- 저장 결과 안내 -->
+                    <div
+                        id="settings-message"
+                        class="message hidden">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             서비스 소개
+        ========================== -->
+        <section id="about" class="page">
+
+            <div class="section-container">
+
+                <div class="section-title">
+
+                    <p class="eyebrow">
+                        ABOUT THE SERVICE
+                    </p>
+
+                    <h2>
+                        오늘의 편지는 어떤 서비스인가요?
+                    </h2>
+
+                </div>
+
+
+                <div class="about-grid">
+
+
+                    <div class="about-card">
+
+                        <div class="about-number">
+                            01
+                        </div>
+
+                        <h3>
+                            일기를 작성해요
+                        </h3>
+
+                        <p>
+                            오늘 있었던 일이나 지금 느끼고 있는
+                            감정을 자유롭게 작성합니다.
+                        </p>
+
+                    </div>
+
+
+                    <div class="about-card">
+
+                        <div class="about-number">
+                            02
+                        </div>
+
+                        <h3>
+                            AI가 이야기를 읽어요
+                        </h3>
+
+                        <p>
+                            작성한 이야기는 서버를 통해
+                            Codyssey AI에게 전달됩니다.
+                        </p>
+
+                    </div>
+
+
+                    <div class="about-card">
+
+                        <div class="about-number">
+                            03
+                        </div>
+
+                        <h3>
+                            따뜻한 답장을 받아요
+                        </h3>
+
+                        <p>
+                            AI가 일기의 내용을 바탕으로
+                            공감과 응원의 메시지를 작성합니다.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- 기술 구조 -->
+
+                <div class="tech-section">
+
+                    <h3>
+                        서비스 기술 구조
+                    </h3>
+
+
+                    <div class="flow">
+
+
+                        <div class="flow-item">
+
+                            <strong>
+                                사용자
+                            </strong>
+
+                            <span>
+                                일기 작성
+                            </span>
+
+                        </div>
+
+
+                        <div class="flow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="flow-item">
+
+                            <strong>
+                                JavaScript
+                            </strong>
+
+                            <span>
+                                fetch()
+                            </span>
+
+                        </div>
+
+
+                        <div class="flow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="flow-item">
+
+                            <strong>
+                                Python API
+                            </strong>
+
+                            <span>
+                                Vercel
+                            </span>
+
+                        </div>
+
+
+                        <div class="flow-arrow">
+                            →
+                        </div>
+
+
+                        <div class="flow-item">
+
+                            <strong>
+                                Codyssey AI
+                            </strong>
+
+                            <span>
+                                답장 생성
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
     </main>
 
-    <!-- 화면 전환 + API 요청 코드 -->
-    <script>
-        console.log("index.html 내부 스크립트 실행됨");
 
-        function showPage(pageId) {
-            console.log("이동할 화면:", pageId);
+    <!-- 하단 -->
+    <footer class="site-footer">
 
-            const pages = document.querySelectorAll(".page");
-            const targetPage = document.getElementById(pageId);
+        <p>
+            오늘의 편지 · 당신의 하루를 응원합니다.
+        </p>
 
-            if (!targetPage) {
-                console.error("해당 id의 화면을 찾지 못했습니다:", pageId);
-                return;
-            }
+    </footer>
 
-            pages.forEach(function (page) {
-                page.classList.remove("active");
-            });
 
-            targetPage.classList.add("active");
-            window.scrollTo(0, 0);
-        }
+    <!-- JavaScript -->
+    <script src="/js/app.js"></script>
 
-        document.addEventListener("click", function (event) {
-            const button = event.target.closest("[data-page]");
-
-            if (!button) {
-                return;
-            }
-
-            event.preventDefault();
-
-            const pageId = button.getAttribute("data-page");
-            console.log("버튼 클릭됨:", pageId);
-
-            showPage(pageId);
-        });
-
-        const diaryForm = document.getElementById("diaryForm");
-        const diaryInput = document.getElementById("diaryInput");
-        const replyOutput = document.getElementById("replyOutput");
-        const errorMessage = document.getElementById("errorMessage");
-        const sendButton = document.getElementById("sendButton");
-        const buttonText = document.getElementById("buttonText");
-
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove("hidden");
-        }
-
-        function clearError() {
-            errorMessage.textContent = "";
-            errorMessage.classList.add("hidden");
-        }
-
-        if (diaryForm) {
-            diaryForm.addEventListener("submit", async function (event) {
-                event.preventDefault();
-
-                clearError();
-
-                const diaryText = diaryInput.value.trim();
-
-                if (!diaryText) {
-                    showError("오늘의 이야기를 먼저 적어주세요.");
-                    return;
-                }
-
-                sendButton.disabled = true;
-                buttonText.textContent = "편지를 쓰는 중...";
-
-                try {
-                    const response = await fetch("/api", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            diary: diaryText,
-                            message: diaryText
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.error || "AI 답장을 받지 못했습니다.");
-                    }
-
-                    const reply =
-                        data.reply ||
-                        data.message ||
-                        data.content ||
-                        "답장이 도착했지만 내용을 읽지 못했어요.";
-
-                    replyOutput.textContent = reply;
-                    showPage("letter");
-
-                } catch (error) {
-                    console.error(error);
-                    showError(error.message || "오류가 발생했습니다.");
-                } finally {
-                    sendButton.disabled = false;
-                    buttonText.textContent = "AI에게 편지 받기";
-                }
-            });
-        }
-<script src="/js/app.js?v=3"></script>
 </body>
 </html>

@@ -1,2 +1,7 @@
+# 로컬 실행용 (python -m pip install -r requirements.txt)
+# Vercel은 pyproject.toml의 dependencies를 사용하므로, 패키지를 바꿀 때는 두 파일을 함께 수정할 것
 requests==2.32.5
 python-dotenv==1.1.1
+fastapi==0.120.4
+uvicorn==0.38.0
+firebase-admin==7.7.0
